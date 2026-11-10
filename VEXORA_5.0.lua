@@ -1,39 +1,40 @@
+local VX = {}
 -- StarterPlayer.StarterPlayerScripts.VEXORA
 -- VEXORA 5.0
 -- Standalone local interface. No HTTP, no loadstring, no remote scripts.
 -- Paste into a client executor, or save as a LocalScript under StarterPlayerScripts.
 
-local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
-local ContextActionService = game:GetService("ContextActionService")
-local HttpService = game:GetService("HttpService")
-local GuiService = game:GetService("GuiService")
-local MarketplaceService = game:GetService("MarketplaceService")
-local ContentProvider = game:GetService("ContentProvider")
-local Stats = game:GetService("Stats")
+ VX.Players = game:GetService("Players")
+ VX.TweenService = game:GetService("TweenService")
+ VX.UserInputService = game:GetService("UserInputService")
+ VX.RunService = game:GetService("RunService")
+ VX.ContextActionService = game:GetService("ContextActionService")
+ VX.HttpService = game:GetService("HttpService")
+ VX.GuiService = game:GetService("GuiService")
+ VX.MarketplaceService = game:GetService("MarketplaceService")
+ VX.ContentProvider = game:GetService("ContentProvider")
+ VX.Stats = game:GetService("Stats")
 
-local player = Players.LocalPlayer
-if not player then
+ VX.player = VX.Players.LocalPlayer
+if not VX.player then
 	warn("[VEXORA] LocalPlayer is missing. Run this on the client.")
 	return
 end
 
-local playerGui = player:WaitForChild("PlayerGui")
-local existing = playerGui:FindFirstChild("VEXORA_5")
-if existing then
-	existing:Destroy()
+ VX.playerGui = VX.player:WaitForChild("PlayerGui")
+ VX.existing = VX.playerGui:FindFirstChild("VEXORA_5")
+if VX.existing then
+	VX.existing:Destroy()
 end
 
-local WIN_W = 780
-local WIN_H = 524
-local SIDE = 70
-local HEADER = 56
-local DOCK_CLOSED = 58
-local DOCK_OPEN = 286
+ VX.WIN_W = 780
+ VX.WIN_H = 524
+ VX.SIDE = 70
+ VX.HEADER = 56
+ VX.DOCK_CLOSED = 58
+ VX.DOCK_OPEN = 286
 
-local C = {
+ VX.C = {
 	bg = Color3.fromRGB(7, 8, 10),
 	panel = Color3.fromRGB(13, 14, 17),
 	card = Color3.fromRGB(20, 21, 25),
@@ -47,23 +48,23 @@ local C = {
 	red = Color3.fromRGB(238, 95, 110),
 }
 
-local ACCENTS = {
-	Cyan = C.cyan,
-	Violet = C.violet,
-	Green = C.green,
-	White = C.white,
+ VX.ACCENTS = {
+	Cyan = VX.C.cyan,
+	Violet = VX.C.violet,
+	Green = VX.C.green,
+	White = VX.C.white,
 }
 
-local COLOR_CHOICES = { "White", "Cyan", "Violet", "Green", "Red" }
-local COLOR_VALUES = {
-	White = C.white,
-	Cyan = C.cyan,
-	Violet = C.violet,
-	Green = C.green,
-	Red = C.red,
+ VX.COLOR_CHOICES = { "White", "Cyan", "Violet", "Green", "Red" }
+ VX.COLOR_VALUES = {
+	White = VX.C.white,
+	Cyan = VX.C.cyan,
+	Violet = VX.C.violet,
+	Green = VX.C.green,
+	Red = VX.C.red,
 }
 
-local GAMES = {
+ VX.GAMES = {
 	{
 		id = "urban",
 		name = "Urban Reload",
@@ -79,7 +80,7 @@ local GAMES = {
 	},
 }
 
-local NAV = {
+ VX.NAV = {
 	{ id = "Home", icon = "home", tip = "Home" },
 	{ id = "Games", icon = "gamepad", tip = "Games" },
 	{ id = "Universal", icon = "sliders", tip = "Universal" },
@@ -87,7 +88,7 @@ local NAV = {
 	{ id = "Settings", icon = "settings", tip = "Settings" },
 }
 
-local function defaultProfile()
+ function VX.defaultProfile()
 	return {
 		fov = nil,
 		smoothFov = true,
@@ -113,8 +114,8 @@ local function defaultProfile()
 	}
 end
 
-local function defaultGlobal()
-	local profiles = { Default = defaultProfile() }
+ function VX.defaultGlobal()
+	local profiles = { Default = VX.defaultProfile() }
 	return {
 		sidebar = true,
 		dock = true,
@@ -128,18 +129,18 @@ local function defaultGlobal()
 	}
 end
 
-local function deepCopy(value)
+ function VX.deepCopy(value)
 	if type(value) ~= "table" then
 		return value
 	end
 	local out = {}
 	for key, item in pairs(value) do
-		out[key] = deepCopy(item)
+		out[key] = VX.deepCopy(item)
 	end
 	return out
 end
 
-local function validKey(name)
+ function VX.validKey(name)
 	if type(name) ~= "string" then
 		return false
 	end
@@ -149,8 +150,8 @@ local function validKey(name)
 	return ok and value ~= nil and value ~= Enum.KeyCode.Unknown
 end
 
-local function sanitizeProfile(source)
-	local profile = defaultProfile()
+ function VX.sanitizeProfile(source)
+	local profile = VX.defaultProfile()
 	if type(source) ~= "table" then
 		return profile
 	end
@@ -166,7 +167,7 @@ local function sanitizeProfile(source)
 	if type(source.opacity) == "number" then
 		profile.opacity = math.clamp(source.opacity, 0.7, 1)
 	end
-	if ACCENTS[source.accent] then
+	if VX.ACCENTS[source.accent] then
 		profile.accent = source.accent
 	end
 	if type(source.grid) == "boolean" then
@@ -207,7 +208,7 @@ local function sanitizeProfile(source)
 		if type(crosshair.opacity) == "number" then
 			profile.crosshair.opacity = math.clamp(crosshair.opacity, 0.25, 1)
 		end
-		if COLOR_VALUES[crosshair.color] then
+		if VX.COLOR_VALUES[crosshair.color] then
 			profile.crosshair.color = crosshair.color
 		end
 	end
@@ -225,8 +226,8 @@ local function sanitizeProfile(source)
 	return profile
 end
 
-local function sanitizeGlobal(source)
-	local global = defaultGlobal()
+ function VX.sanitizeGlobal(source)
+	local global = VX.defaultGlobal()
 	if type(source) ~= "table" then
 		return global
 	end
@@ -240,10 +241,10 @@ local function sanitizeGlobal(source)
 		global.dock = true
 	end
 	if type(source.binds) == "table" then
-		if validKey(source.binds.toggle) then
+		if VX.validKey(source.binds.toggle) then
 			global.binds.toggle = source.binds.toggle
 		end
-		if validKey(source.binds.palette) then
+		if VX.validKey(source.binds.palette) then
 			global.binds.palette = source.binds.palette
 		end
 	end
@@ -265,7 +266,7 @@ local function sanitizeGlobal(source)
 		local count = 0
 		for name, preset in pairs(source.presets) do
 			if type(name) == "string" and #name <= 24 and count < 16 then
-				local clean = sanitizeProfile({ crosshair = preset }).crosshair
+				local clean = VX.sanitizeProfile({ crosshair = preset }).crosshair
 				global.presets[name] = clean
 				count += 1
 			end
@@ -283,7 +284,7 @@ local function sanitizeGlobal(source)
 		local count = 0
 		for name, profile in pairs(source.profiles) do
 			if type(name) == "string" and #name > 0 and #name <= 24 and count < 12 then
-				profiles[name] = sanitizeProfile(profile)
+				profiles[name] = VX.sanitizeProfile(profile)
 				count += 1
 			end
 		end
@@ -297,74 +298,74 @@ local function sanitizeGlobal(source)
 	if not global.profiles[global.activeProfile] then
 		global.activeProfile = "Default"
 		if not global.profiles.Default then
-			global.profiles.Default = defaultProfile()
+			global.profiles.Default = VX.defaultProfile()
 		end
 	end
 	return global
 end
 
-local G = defaultGlobal()
-local P = G.profiles.Default
-local storageMode = "session"
-local storageNote = "Settings last for this run. Export a copy if you want to keep them."
-local saveWarned = false
-local saveQueued = false
+ VX.G = VX.defaultGlobal()
+ VX.P = VX.G.profiles.Default
+ VX.storageMode = "session"
+ VX.storageNote = "Settings last for this run. Export a copy if you want to keep them."
+ VX.saveWarned = false
+ VX.saveQueued = false
 
-local selectedId = nil
-local experienceName = "Place " .. tostring(game.PlaceId)
-local infoReady = false
-local originalFOV = 70
-local previousQuality = nil
-local bootDone = false
-local alive = true
-local windowOpen = false
-local dockExpanded = false
-local paletteOpen = false
-local modalOpen = false
-local capturing = nil
-local suppressEscape = false
-local currentPage = nil
-local currentTab = "Camera"
-local navToken = 0
-local tipToken = 0
-local paletteIndex = 1
-local fpsValue = nil
-local fpsAccum = 0
-local fpsFrames = 0
-local fpsHistory = table.create(28, 0)
-local fpsCursor = 0
-local sessionStart = os.clock()
-local lastInput = UserInputService:GetLastInputType()
-local history = {}
-local recentQueries = {}
-local features = {}
-local featureOrder = {}
-local navButtons = {}
-local accentNodes = {}
-local watchers = {}
-local conns = {}
-local pageConns = {}
-local chartBars = nil
-local onPlayersChanged = nil
-local dropdownCallback = nil
-local dropdownOptions = {}
-local paletteRows = {}
-local hudDrag = false
-local windowDrag = false
-local dragStart = nil
-local dragOrigin = nil
+ VX.selectedId = nil
+ VX.experienceName = "Place " .. tostring(game.PlaceId)
+ VX.infoReady = false
+ VX.originalFOV = 70
+ VX.previousQuality = nil
+ VX.bootDone = false
+ VX.alive = true
+ VX.windowOpen = false
+ VX.dockExpanded = false
+ VX.paletteOpen = false
+ VX.modalOpen = false
+ VX.capturing = nil
+ VX.suppressEscape = false
+ VX.currentPage = nil
+ VX.currentTab = "Camera"
+ VX.navToken = 0
+ VX.tipToken = 0
+ VX.paletteIndex = 1
+ VX.fpsValue = nil
+ VX.fpsAccum = 0
+ VX.fpsFrames = 0
+ VX.fpsHistory = table.create(28, 0)
+ VX.fpsCursor = 0
+ VX.sessionStart = os.clock()
+ VX.lastInput = VX.UserInputService:GetLastInputType()
+ VX.history = {}
+ VX.recentQueries = {}
+ VX.features = {}
+ VX.featureOrder = {}
+ VX.navButtons = {}
+ VX.accentNodes = {}
+ VX.watchers = {}
+ VX.conns = {}
+ VX.pageConns = {}
+ VX.chartBars = nil
+ VX.onPlayersChanged = nil
+ VX.dropdownCallback = nil
+ VX.dropdownOptions = {}
+ VX.paletteRows = {}
+ VX.hudDrag = false
+ VX.windowDrag = false
+ VX.dragStart = nil
+ VX.dragOrigin = nil
 
 if workspace.CurrentCamera then
-	originalFOV = workspace.CurrentCamera.FieldOfView
+	VX.originalFOV = workspace.CurrentCamera.FieldOfView
 end
 
-local graphicsAvailable = false
+ VX.graphicsAvailable = false
 pcall(function()
 	local level = UserSettings():GetService("UserGameSettings").SavedQualityLevel
-	graphicsAvailable = level ~= nil
+	VX.graphicsAvailable = level ~= nil
 end)
 
-local pingAvailable = true
+ VX.pingAvailable = true
 
 do
 	local loadedNote = nil
@@ -372,54 +373,54 @@ do
 		local ok, raw = pcall(readfile, "VEXORA_5_settings.json")
 		if ok and type(raw) == "string" and raw ~= "" then
 			local decodedOk, data = pcall(function()
-				return HttpService:JSONDecode(raw)
+				return VX.HttpService:JSONDecode(raw)
 			end)
 			if decodedOk and type(data) == "table" and data.version == 5 and type(data.global) == "table" then
-				G = sanitizeGlobal(data.global)
-				P = G.profiles[G.activeProfile]
-				storageMode = "file"
-				storageNote = "Loaded VEXORA_5_settings.json from this device."
+				VX.G = VX.sanitizeGlobal(data.global)
+				VX.P = VX.G.profiles[VX.G.activeProfile]
+				VX.storageMode = "file"
+				VX.storageNote = "Loaded VEXORA_5_settings.json from this device."
 			else
 				loadedNote = "A settings file was found and ignored because it is not VEXORA 5."
 			end
 		end
 	end
-	G._loadNote = loadedNote
+	VX.G._loadNote = loadedNote
 end
 
-local rememberedProfile = G.perGame[tostring(game.PlaceId)]
-if rememberedProfile == "urban" or rememberedProfile == "universal" then
-	selectedId = rememberedProfile
+ VX.rememberedProfile = VX.G.perGame[tostring(game.PlaceId)]
+if VX.rememberedProfile == "urban" or VX.rememberedProfile == "universal" then
+	VX.selectedId = VX.rememberedProfile
 end
 
-local function track(conn)
-	table.insert(conns, conn)
+ function VX.track(conn)
+	table.insert(VX.conns, conn)
 	return conn
 end
 
-local function trackPage(conn)
-	table.insert(pageConns, conn)
+ function VX.trackPage(conn)
+	table.insert(VX.pageConns, conn)
 	return conn
 end
 
-local function clearPageConns()
-	for _, conn in ipairs(pageConns) do
+ function VX.clearPageConns()
+	for _, conn in ipairs(VX.pageConns) do
 		pcall(function()
 			conn:Disconnect()
 		end)
 	end
-	table.clear(pageConns)
+	table.clear(VX.pageConns)
 end
 
-local function duration(base)
-	if P and P.reducedMotion then
+ function VX.duration(base)
+	if VX.P and VX.P.reducedMotion then
 		return 0
 	end
-	local scale = (P and P.anim) or 1
+	local scale = (VX.P and VX.P.anim) or 1
 	return base * math.clamp(scale, 0.6, 1.4)
 end
 
-local function tween(obj, seconds, props)
+ function VX.tween(obj, seconds, props)
 	local function finished()
 		local event = Instance.new("BindableEvent")
 		task.defer(function()
@@ -427,7 +428,7 @@ local function tween(obj, seconds, props)
 		end)
 		return { Completed = event.Event, Play = function() end }
 	end
-	if not obj or duration(seconds) <= 0 then
+	if not obj or VX.duration(seconds) <= 0 then
 		if obj and props then
 			for key, value in pairs(props) do
 				pcall(function()
@@ -437,9 +438,9 @@ local function tween(obj, seconds, props)
 		end
 		return finished()
 	end
-	local info = TweenInfo.new(duration(seconds), Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+	local info = TweenInfo.new(VX.duration(seconds), Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
 	local ok, result = pcall(function()
-		return TweenService:Create(obj, info, props)
+		return VX.TweenService:Create(obj, info, props)
 	end)
 	if not ok then
 		for key, value in pairs(props) do
@@ -453,7 +454,7 @@ local function tween(obj, seconds, props)
 	return result
 end
 
-local function make(className, props, parent)
+ function VX.make(className, props, parent)
 	local obj = Instance.new(className)
 	for key, value in pairs(props or {}) do
 		obj[key] = value
@@ -462,52 +463,52 @@ local function make(className, props, parent)
 	return obj
 end
 
-local function corner(obj, radius)
-	make("UICorner", { CornerRadius = UDim.new(0, radius) }, obj)
+ function VX.corner(obj, radius)
+	VX.make("UICorner", { CornerRadius = UDim.new(0, radius) }, obj)
 end
 
-local function stroke(obj, transparency, color)
-	return make("UIStroke", {
-		Color = color or C.border,
+ function VX.stroke(obj, transparency, color)
+	return VX.make("UIStroke", {
+		Color = color or VX.C.border,
 		Transparency = transparency or 0.35,
 		Thickness = 1,
 	}, obj)
 end
 
-local function lay(parent)
+ function VX.lay(parent)
 	local nextOrder = (parent:GetAttribute("Lay") or 0) + 1
 	parent:SetAttribute("Lay", nextOrder)
 	return nextOrder
 end
 
-local function accentColor()
-	return ACCENTS[P.accent] or C.cyan
+ function VX.accentColor()
+	return VX.ACCENTS[VX.P.accent] or VX.C.cyan
 end
 
-local function trackAccent(obj, prop)
-	table.insert(accentNodes, { obj, prop })
-	obj[prop] = accentColor()
+ function VX.trackAccent(obj, prop)
+	table.insert(VX.accentNodes, { obj, prop })
+	obj[prop] = VX.accentColor()
 end
 
-local function applyAccent()
-	local color = accentColor()
-	for index = #accentNodes, 1, -1 do
-		local item = accentNodes[index]
+ function VX.applyAccent()
+	local color = VX.accentColor()
+	for index = #VX.accentNodes, 1, -1 do
+		local item = VX.accentNodes[index]
 		if item[1].Parent then
 			item[1][item[2]] = color
 		else
-			table.remove(accentNodes, index)
+			table.remove(VX.accentNodes, index)
 		end
 	end
 end
 
-local function watch(key, label)
-	watchers[key] = watchers[key] or {}
-	table.insert(watchers[key], label)
+ function VX.watch(key, label)
+	VX.watchers[key] = VX.watchers[key] or {}
+	table.insert(VX.watchers[key], label)
 end
 
-local function setWatch(key, text)
-	local list = watchers[key]
+ function VX.setWatch(key, text)
+	local list = VX.watchers[key]
 	if not list then
 		return
 	end
@@ -521,7 +522,7 @@ local function setWatch(key, text)
 	end
 end
 
-local function formatTime(seconds)
+ function VX.formatTime(seconds)
 	seconds = math.max(0, math.floor(seconds))
 	local hours = math.floor(seconds / 3600)
 	local minutes = math.floor(seconds % 3600 / 60)
@@ -532,8 +533,8 @@ local function formatTime(seconds)
 	return string.format("%02d:%02d", minutes, secs)
 end
 
-local function gameById(id)
-	for _, entry in ipairs(GAMES) do
+ function VX.gameById(id)
+	for _, entry in ipairs(VX.GAMES) do
 		if entry.id == id then
 			return entry
 		end
@@ -541,27 +542,27 @@ local function gameById(id)
 	return nil
 end
 
-local function inUrban()
+ function VX.inUrban()
 	return game.PlaceId == 84448037861644
 end
 
-local function platformText()
-	if GuiService:IsTenFootInterface() then
+ function VX.platformText()
+	if VX.GuiService:IsTenFootInterface() then
 		return "Console"
 	end
-	if UserInputService.TouchEnabled and not UserInputService.MouseEnabled then
+	if VX.UserInputService.TouchEnabled and not VX.UserInputService.MouseEnabled then
 		return "Touch"
 	end
-	if UserInputService.GamepadEnabled and not UserInputService.KeyboardEnabled then
+	if VX.UserInputService.GamepadEnabled and not VX.UserInputService.KeyboardEnabled then
 		return "Gamepad"
 	end
-	if UserInputService.KeyboardEnabled then
+	if VX.UserInputService.KeyboardEnabled then
 		return "Keyboard"
 	end
 	return "Unknown"
 end
 
-local function resolutionText()
+ function VX.resolutionText()
 	local camera = workspace.CurrentCamera
 	if not camera then
 		return "Unavailable"
@@ -570,7 +571,7 @@ local function resolutionText()
 	return string.format("%d x %d", math.floor(view.X + 0.5), math.floor(view.Y + 0.5))
 end
 
-local function fovText()
+ function VX.fovText()
 	local camera = workspace.CurrentCamera
 	if not camera then
 		return "Unavailable"
@@ -578,12 +579,12 @@ local function fovText()
 	return tostring(math.floor(camera.FieldOfView + 0.5))
 end
 
-local function pingText()
-	if not pingAvailable then
+ function VX.pingText()
+	if not VX.pingAvailable then
 		return "Ping (estimate)    Unavailable"
 	end
 	local ok, sample = pcall(function()
-		return player:GetNetworkPing()
+		return VX.player:GetNetworkPing()
 	end)
 	if not ok or type(sample) ~= "number" then
 		return "Ping (estimate)    Unavailable"
@@ -591,9 +592,9 @@ local function pingText()
 	return string.format("Ping (estimate)    %d ms", math.floor(sample * 1000 + 0.5))
 end
 
-local function memoryText()
+ function VX.memoryText()
 	local ok, mb = pcall(function()
-		return Stats:GetTotalMemoryUsageMb()
+		return VX.Stats:GetTotalMemoryUsageMb()
 	end)
 	if ok and type(mb) == "number" then
 		return string.format("Memory    %.0f MB", mb)
@@ -601,7 +602,7 @@ local function memoryText()
 	return "Memory    Unavailable"
 end
 
-local function graphicsText()
+ function VX.graphicsText()
 	local ok, level = pcall(function()
 		return UserSettings():GetService("UserGameSettings").SavedQualityLevel.Name
 	end)
@@ -611,23 +612,23 @@ local function graphicsText()
 	return "Unavailable"
 end
 
-local function shownTransparency()
-	return 1 - math.clamp(P.opacity or 1, 0.7, 1)
+ function VX.shownTransparency()
+	return 1 - math.clamp(VX.P.opacity or 1, 0.7, 1)
 end
 
-local function fitScale()
+ function VX.fitScale()
 	local camera = workspace.CurrentCamera
 	local view = camera and camera.ViewportSize or Vector2.new(1280, 720)
-	local sx = (view.X - 24) / WIN_W
-	local sy = (view.Y - 96) / WIN_H
+	local sx = (view.X - 24) / VX.WIN_W
+	local sy = (view.Y - 96) / VX.WIN_H
 	return math.min(1, sx, sy)
 end
 
-local function computeScale()
-	return math.clamp(fitScale() * (P.uiScale or 1), 0.68, 1.15)
+ function VX.computeScale()
+	return math.clamp(VX.fitScale() * (VX.P.uiScale or 1), 0.68, 1.15)
 end
 
-local function recolor(root, color)
+ function VX.recolor(root, color)
 	if not root then
 		return
 	end
@@ -640,7 +641,7 @@ local function recolor(root, color)
 	end
 end
 
-local function paintIcon(holder, name, color, pixel)
+ function VX.paintIcon(holder, name, color, pixel)
 	local thick = math.max(1, math.floor((pixel or 18) * 0.08 + 0.5))
 	local function scale(value)
 		return value / 24
@@ -824,8 +825,8 @@ local function paintIcon(holder, name, color, pixel)
 	end
 end
 
-local function icon(parent, name, pixel, color)
-	local holder = make("Frame", {
+ function VX.icon(parent, name, pixel, color)
+	local holder = VX.make("Frame", {
 		Name = "Icon",
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
@@ -833,93 +834,93 @@ local function icon(parent, name, pixel, color)
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
 	}, parent)
-	paintIcon(holder, name, color or C.white, pixel)
+	VX.paintIcon(holder, name, color or VX.C.white, pixel)
 	return holder
 end
 
-local gui = make("ScreenGui", {
+ VX.gui = VX.make("ScreenGui", {
 	Name = "VEXORA_5",
 	ResetOnSpawn = false,
 	IgnoreGuiInset = true,
 	ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 	DisplayOrder = 200,
-}, playerGui)
+}, VX.playerGui)
 
-local crosshairRoot = make("Frame", {
+ VX.crosshairRoot = VX.make("Frame", {
 	Name = "Crosshair",
 	BackgroundTransparency = 1,
 	Size = UDim2.fromScale(1, 1),
 	ZIndex = 1,
 	Active = false,
-}, gui)
+}, VX.gui)
 
-local hud = make("TextButton", {
+ VX.hud = VX.make("TextButton", {
 	Name = "Hud",
 	AutoButtonColor = false,
 	Text = "",
-	BackgroundColor3 = C.panel,
+	BackgroundColor3 = VX.C.panel,
 	BorderSizePixel = 0,
 	Size = UDim2.fromOffset(176, 78),
 	Position = UDim2.fromOffset(16, 16),
 	Visible = false,
 	ZIndex = 2,
 	Active = true,
-}, gui)
-corner(hud, 12)
-stroke(hud, 0.25)
+}, VX.gui)
+VX.corner(VX.hud, 12)
+VX.stroke(VX.hud, 0.25)
 
-local hudFps = make("TextLabel", {
+ VX.hudFps = VX.make("TextLabel", {
 	BackgroundTransparency = 1,
 	Position = UDim2.fromOffset(12, 8),
 	Size = UDim2.new(1, -24, 0, 18),
 	Font = Enum.Font.GothamBold,
 	TextSize = 13,
 	TextXAlignment = Enum.TextXAlignment.Left,
-	TextColor3 = C.white,
+	TextColor3 = VX.C.white,
 	Text = "FPS    …",
-}, hud)
-local hudPing = make("TextLabel", {
+}, VX.hud)
+ VX.hudPing = VX.make("TextLabel", {
 	BackgroundTransparency = 1,
 	Position = UDim2.fromOffset(12, 28),
 	Size = UDim2.new(1, -24, 0, 16),
 	Font = Enum.Font.Gotham,
 	TextSize = 12,
 	TextXAlignment = Enum.TextXAlignment.Left,
-	TextColor3 = C.muted,
+	TextColor3 = VX.C.muted,
 	Text = "Ping    …",
-}, hud)
-local hudTime = make("TextLabel", {
+}, VX.hud)
+ VX.hudTime = VX.make("TextLabel", {
 	BackgroundTransparency = 1,
 	Position = UDim2.fromOffset(12, 48),
 	Size = UDim2.new(1, -24, 0, 16),
 	Font = Enum.Font.Gotham,
 	TextSize = 12,
 	TextXAlignment = Enum.TextXAlignment.Left,
-	TextColor3 = C.muted,
+	TextColor3 = VX.C.muted,
 	Text = "Session    00:00",
-}, hud)
-watch("fps", hudFps)
-watch("ping", hudPing)
-watch("session", hudTime)
+}, VX.hud)
+VX.watch("fps", VX.hudFps)
+VX.watch("ping", VX.hudPing)
+VX.watch("session", VX.hudTime)
 
-local window = make("CanvasGroup", {
+ VX.window = VX.make("CanvasGroup", {
 	Name = "Window",
 	AnchorPoint = Vector2.new(0.5, 0.5),
 	Position = UDim2.fromScale(0.5, 0.5),
-	Size = UDim2.fromOffset(WIN_W, WIN_H),
-	BackgroundColor3 = C.bg,
+	Size = UDim2.fromOffset(VX.WIN_W, VX.WIN_H),
+	BackgroundColor3 = VX.C.bg,
 	BorderSizePixel = 0,
 	GroupTransparency = 1,
 	Visible = false,
 	ClipsDescendants = true,
 	ZIndex = 3,
 	Active = true,
-}, gui)
-corner(window, 16)
-stroke(window, 0.12)
-local uiScale = make("UIScale", { Scale = 1 }, window)
+}, VX.gui)
+VX.corner(VX.window, 16)
+VX.stroke(VX.window, 0.12)
+ VX.uiScale = VX.make("UIScale", { Scale = 1 }, VX.window)
 
-make("TextButton", {
+VX.make("TextButton", {
 	Name = "Sink",
 	Text = "",
 	AutoButtonColor = false,
@@ -927,185 +928,185 @@ make("TextButton", {
 	Size = UDim2.fromScale(1, 1),
 	Modal = true,
 	ZIndex = 0,
-}, window)
+}, VX.window)
 
-local grid = make("Frame", {
+ VX.grid = VX.make("Frame", {
 	Name = "Grid",
 	BackgroundTransparency = 1,
 	Size = UDim2.fromScale(1, 1),
 	ClipsDescendants = true,
 	ZIndex = 1,
-}, window)
-for x = 0, WIN_W, 26 do
-	make("Frame", {
+}, VX.window)
+for x = 0, VX.WIN_W, 26 do
+	VX.make("Frame", {
 		Position = UDim2.fromOffset(x, 0),
 		Size = UDim2.new(0, 1, 1, 0),
-		BackgroundColor3 = C.white,
+		BackgroundColor3 = VX.C.white,
 		BackgroundTransparency = 0.965,
 		BorderSizePixel = 0,
-	}, grid)
+	}, VX.grid)
 end
-for y = 0, WIN_H, 26 do
-	make("Frame", {
+for y = 0, VX.WIN_H, 26 do
+	VX.make("Frame", {
 		Position = UDim2.fromOffset(0, y),
 		Size = UDim2.new(1, 0, 0, 1),
-		BackgroundColor3 = C.white,
+		BackgroundColor3 = VX.C.white,
 		BackgroundTransparency = 0.965,
 		BorderSizePixel = 0,
-	}, grid)
+	}, VX.grid)
 end
 
-local pulseLayer = make("Frame", {
+ VX.pulseLayer = VX.make("Frame", {
 	Name = "Pulses",
 	BackgroundTransparency = 1,
 	Size = UDim2.fromScale(1, 1),
 	ClipsDescendants = true,
 	ZIndex = 2,
-}, grid)
+}, VX.grid)
 
-local glow = make("Frame", {
+ VX.glow = VX.make("Frame", {
 	AnchorPoint = Vector2.new(0.5, 1),
 	Position = UDim2.fromScale(0.5, 1),
 	Size = UDim2.new(1, 0, 0, 150),
-	BackgroundColor3 = C.violet,
+	BackgroundColor3 = VX.C.violet,
 	BackgroundTransparency = 0.96,
 	BorderSizePixel = 0,
 	ZIndex = 2,
-}, window)
-make("UIGradient", {
+}, VX.window)
+VX.make("UIGradient", {
 	Rotation = 90,
 	Transparency = NumberSequence.new({
 		NumberSequenceKeypoint.new(0, 1),
 		NumberSequenceKeypoint.new(1, 0.2),
 	}),
-}, glow)
+}, VX.glow)
 
-local sidebar = make("Frame", {
+ VX.sidebar = VX.make("Frame", {
 	Name = "Sidebar",
-	Size = UDim2.new(0, SIDE, 1, 0),
-	BackgroundColor3 = C.panel,
+	Size = UDim2.new(0, VX.SIDE, 1, 0),
+	BackgroundColor3 = VX.C.panel,
 	BorderSizePixel = 0,
 	ZIndex = 4,
-}, window)
-make("Frame", {
+}, VX.window)
+VX.make("Frame", {
 	Position = UDim2.new(1, -1, 0, 0),
 	Size = UDim2.new(0, 1, 1, 0),
-	BackgroundColor3 = C.border,
+	BackgroundColor3 = VX.C.border,
 	BackgroundTransparency = 0.45,
 	BorderSizePixel = 0,
-}, sidebar)
+}, VX.sidebar)
 
-local logo = make("TextLabel", {
+ VX.logo = VX.make("TextLabel", {
 	Position = UDim2.fromOffset(15, 14),
 	Size = UDim2.fromOffset(40, 40),
-	BackgroundColor3 = C.white,
+	BackgroundColor3 = VX.C.white,
 	Text = "V",
-	TextColor3 = C.bg,
+	TextColor3 = VX.C.bg,
 	TextSize = 22,
 	Font = Enum.Font.GothamBold,
 	BorderSizePixel = 0,
-}, sidebar)
-corner(logo, 12)
+}, VX.sidebar)
+VX.corner(VX.logo, 12)
 
-local main = make("Frame", {
+ VX.main = VX.make("Frame", {
 	Name = "Main",
-	Position = UDim2.fromOffset(SIDE, 0),
-	Size = UDim2.new(1, -SIDE, 1, 0),
+	Position = UDim2.fromOffset(VX.SIDE, 0),
+	Size = UDim2.new(1, -VX.SIDE, 1, 0),
 	BackgroundTransparency = 1,
 	ZIndex = 4,
-}, window)
+}, VX.window)
 
-local header = make("Frame", {
+ VX.header = VX.make("Frame", {
 	Name = "Header",
-	Size = UDim2.new(1, 0, 0, HEADER),
+	Size = UDim2.new(1, 0, 0, VX.HEADER),
 	BackgroundTransparency = 1,
-}, main)
-make("Frame", {
+}, VX.main)
+VX.make("Frame", {
 	Position = UDim2.new(0, 0, 1, -1),
 	Size = UDim2.new(1, 0, 0, 1),
-	BackgroundColor3 = C.border,
+	BackgroundColor3 = VX.C.border,
 	BackgroundTransparency = 0.45,
 	BorderSizePixel = 0,
-}, header)
+}, VX.header)
 
-local title = make("TextLabel", {
+ VX.title = VX.make("TextLabel", {
 	BackgroundTransparency = 1,
 	Position = UDim2.fromOffset(16, 8),
 	Size = UDim2.new(1, -320, 0, 24),
 	Font = Enum.Font.GothamBold,
 	TextSize = 20,
 	TextXAlignment = Enum.TextXAlignment.Left,
-	TextColor3 = C.white,
+	TextColor3 = VX.C.white,
 	Text = "Games",
 	TextTruncate = Enum.TextTruncate.AtEnd,
-}, header)
-local subtitle = make("TextLabel", {
+}, VX.header)
+ VX.subtitle = VX.make("TextLabel", {
 	BackgroundTransparency = 1,
 	Position = UDim2.fromOffset(16, 32),
 	Size = UDim2.new(1, -320, 0, 16),
 	Font = Enum.Font.Gotham,
 	TextSize = 11,
 	TextXAlignment = Enum.TextXAlignment.Left,
-	TextColor3 = C.muted,
+	TextColor3 = VX.C.muted,
 	Text = "VEXORA   /   5.0",
 	TextTruncate = Enum.TextTruncate.AtEnd,
-}, header)
+}, VX.header)
 
-local searchButton = make("TextButton", {
+ VX.searchButton = VX.make("TextButton", {
 	AnchorPoint = Vector2.new(1, 0.5),
 	Position = UDim2.new(1, -84, 0.5, 0),
 	Size = UDim2.fromOffset(176, 32),
-	BackgroundColor3 = C.card,
+	BackgroundColor3 = VX.C.card,
 	Text = "",
 	AutoButtonColor = false,
 	BorderSizePixel = 0,
-}, header)
-corner(searchButton, 8)
-stroke(searchButton, 0.4)
-icon(searchButton, "search", 14, C.muted).Position = UDim2.fromOffset(16, 16)
-make("TextLabel", {
+}, VX.header)
+VX.corner(VX.searchButton, 8)
+VX.stroke(VX.searchButton, 0.4)
+VX.icon(VX.searchButton, "search", 14, VX.C.muted).Position = UDim2.fromOffset(16, 16)
+VX.make("TextLabel", {
 	BackgroundTransparency = 1,
 	Position = UDim2.fromOffset(28, 0),
 	Size = UDim2.new(1, -36, 1, 0),
 	Font = Enum.Font.Gotham,
 	TextSize = 12,
 	TextXAlignment = Enum.TextXAlignment.Left,
-	TextColor3 = C.muted,
+	TextColor3 = VX.C.muted,
 	Text = "Search    Ctrl K",
-}, searchButton)
+}, VX.searchButton)
 
-local minButton = make("TextButton", {
+ VX.minButton = VX.make("TextButton", {
 	AnchorPoint = Vector2.new(1, 0.5),
 	Position = UDim2.new(1, -48, 0.5, 0),
 	Size = UDim2.fromOffset(28, 28),
-	BackgroundColor3 = C.card,
+	BackgroundColor3 = VX.C.card,
 	Text = "",
 	AutoButtonColor = false,
 	BorderSizePixel = 0,
-}, header)
-corner(minButton, 8)
-icon(minButton, "minus", 14, C.muted)
+}, VX.header)
+VX.corner(VX.minButton, 8)
+VX.icon(VX.minButton, "minus", 14, VX.C.muted)
 
-local closeButton = make("TextButton", {
+ VX.closeButton = VX.make("TextButton", {
 	AnchorPoint = Vector2.new(1, 0.5),
 	Position = UDim2.new(1, -12, 0.5, 0),
 	Size = UDim2.fromOffset(28, 28),
-	BackgroundColor3 = C.card,
+	BackgroundColor3 = VX.C.card,
 	Text = "",
 	AutoButtonColor = false,
 	BorderSizePixel = 0,
-}, header)
-corner(closeButton, 8)
-icon(closeButton, "close", 14, C.muted)
+}, VX.header)
+VX.corner(VX.closeButton, 8)
+VX.icon(VX.closeButton, "close", 14, VX.C.muted)
 
-local body = make("Frame", {
+ VX.body = VX.make("Frame", {
 	Name = "Body",
-	Position = UDim2.fromOffset(0, HEADER),
-	Size = UDim2.new(1, 0, 1, -HEADER),
+	Position = UDim2.fromOffset(0, VX.HEADER),
+	Size = UDim2.new(1, 0, 1, -VX.HEADER),
 	BackgroundTransparency = 1,
-}, main)
+}, VX.main)
 
-local tabBar = make("ScrollingFrame", {
+ VX.tabBar = VX.make("ScrollingFrame", {
 	Name = "Tabs",
 	Visible = false,
 	BackgroundTransparency = 1,
@@ -1116,25 +1117,25 @@ local tabBar = make("ScrollingFrame", {
 	ScrollBarThickness = 0,
 	ScrollingDirection = Enum.ScrollingDirection.X,
 	ElasticBehavior = Enum.ElasticBehavior.Never,
-}, body)
-make("UIPadding", {
+}, VX.body)
+VX.make("UIPadding", {
 	PaddingLeft = UDim.new(0, 12),
 	PaddingRight = UDim.new(0, 12),
 	PaddingTop = UDim.new(0, 8),
-}, tabBar)
-local tabLayout = make("UIListLayout", {
+}, VX.tabBar)
+ VX.tabLayout = VX.make("UIListLayout", {
 	FillDirection = Enum.FillDirection.Horizontal,
 	Padding = UDim.new(0, 6),
 	SortOrder = Enum.SortOrder.LayoutOrder,
-}, tabBar)
+}, VX.tabBar)
 
-local content = make("CanvasGroup", {
+ VX.content = VX.make("CanvasGroup", {
 	Name = "Content",
 	BackgroundTransparency = 1,
 	Size = UDim2.fromScale(1, 1),
 	GroupTransparency = 0,
-}, body)
-local scroll = make("ScrollingFrame", {
+}, VX.body)
+ VX.scroll = VX.make("ScrollingFrame", {
 	Name = "Scroll",
 	BackgroundTransparency = 1,
 	BorderSizePixel = 0,
@@ -1142,95 +1143,95 @@ local scroll = make("ScrollingFrame", {
 	CanvasSize = UDim2.new(),
 	AutomaticCanvasSize = Enum.AutomaticSize.Y,
 	ScrollBarThickness = 4,
-	ScrollBarImageColor3 = C.border,
+	ScrollBarImageColor3 = VX.C.border,
 	ScrollingDirection = Enum.ScrollingDirection.Y,
 	ElasticBehavior = Enum.ElasticBehavior.Never,
-}, content)
+}, VX.content)
 
-local dock = make("Frame", {
+ VX.dock = VX.make("Frame", {
 	Name = "Dock",
 	AnchorPoint = Vector2.new(0.5, 1),
 	Position = UDim2.new(0.5, 0, 1, -16),
-	Size = UDim2.fromOffset(DOCK_CLOSED, 52),
-	BackgroundColor3 = C.panel,
+	Size = UDim2.fromOffset(VX.DOCK_CLOSED, 52),
+	BackgroundColor3 = VX.C.panel,
 	BorderSizePixel = 0,
 	Visible = false,
 	ClipsDescendants = true,
 	ZIndex = 6,
 	Active = true,
-}, gui)
-corner(dock, 18)
-stroke(dock, 0.12)
-local dockScale = make("UIScale", { Scale = 1 }, dock)
-local dockLogo = make("TextButton", {
+}, VX.gui)
+VX.corner(VX.dock, 18)
+VX.stroke(VX.dock, 0.12)
+ VX.dockScale = VX.make("UIScale", { Scale = 1 }, VX.dock)
+ VX.dockLogo = VX.make("TextButton", {
 	Position = UDim2.fromOffset(11, 8),
 	Size = UDim2.fromOffset(36, 36),
-	BackgroundColor3 = C.white,
+	BackgroundColor3 = VX.C.white,
 	Text = "V",
-	TextColor3 = C.bg,
+	TextColor3 = VX.C.bg,
 	TextSize = 18,
 	Font = Enum.Font.GothamBold,
 	AutoButtonColor = false,
 	BorderSizePixel = 0,
-}, dock)
-corner(dockLogo, 12)
-local dockItems = make("Frame", {
+}, VX.dock)
+VX.corner(VX.dockLogo, 12)
+ VX.dockItems = VX.make("Frame", {
 	Position = UDim2.fromOffset(54, 8),
 	Size = UDim2.fromOffset(220, 36),
 	BackgroundTransparency = 1,
-}, dock)
+}, VX.dock)
 
-local tip = make("Frame", {
+ VX.tip = VX.make("Frame", {
 	Visible = false,
-	BackgroundColor3 = C.panel,
+	BackgroundColor3 = VX.C.panel,
 	BorderSizePixel = 0,
 	Size = UDim2.fromOffset(80, 26),
 	ZIndex = 15,
-}, gui)
-corner(tip, 8)
-stroke(tip, 0.2)
-local tipLabel = make("TextLabel", {
+}, VX.gui)
+VX.corner(VX.tip, 8)
+VX.stroke(VX.tip, 0.2)
+ VX.tipLabel = VX.make("TextLabel", {
 	BackgroundTransparency = 1,
 	Size = UDim2.fromScale(1, 1),
 	Font = Enum.Font.Gotham,
 	TextSize = 12,
-	TextColor3 = C.white,
+	TextColor3 = VX.C.white,
 	Text = "",
-}, tip)
+}, VX.tip)
 
-local dropdownCatcher = make("TextButton", {
+ VX.dropdownCatcher = VX.make("TextButton", {
 	Visible = false,
 	Text = "",
 	AutoButtonColor = false,
 	BackgroundTransparency = 1,
 	Size = UDim2.fromScale(1, 1),
 	ZIndex = 20,
-}, gui)
-local dropdownPanel = make("Frame", {
+}, VX.gui)
+ VX.dropdownPanel = VX.make("Frame", {
 	Visible = false,
-	BackgroundColor3 = C.panel,
+	BackgroundColor3 = VX.C.panel,
 	BorderSizePixel = 0,
 	ZIndex = 21,
 	ClipsDescendants = true,
-}, gui)
-corner(dropdownPanel, 10)
-stroke(dropdownPanel, 0.15)
-local dropdownSearch = make("TextBox", {
+}, VX.gui)
+VX.corner(VX.dropdownPanel, 10)
+VX.stroke(VX.dropdownPanel, 0.15)
+ VX.dropdownSearch = VX.make("TextBox", {
 	Visible = false,
 	Position = UDim2.fromOffset(8, 8),
 	Size = UDim2.new(1, -16, 0, 28),
-	BackgroundColor3 = C.card,
+	BackgroundColor3 = VX.C.card,
 	Text = "",
 	PlaceholderText = "Filter",
-	PlaceholderColor3 = C.muted,
-	TextColor3 = C.white,
+	PlaceholderColor3 = VX.C.muted,
+	TextColor3 = VX.C.white,
 	Font = Enum.Font.Gotham,
 	TextSize = 13,
 	ClearTextOnFocus = false,
 	BorderSizePixel = 0,
-}, dropdownPanel)
-corner(dropdownSearch, 7)
-local dropdownList = make("ScrollingFrame", {
+}, VX.dropdownPanel)
+VX.corner(VX.dropdownSearch, 7)
+ VX.dropdownList = VX.make("ScrollingFrame", {
 	BackgroundTransparency = 1,
 	BorderSizePixel = 0,
 	Position = UDim2.fromOffset(6, 8),
@@ -1238,11 +1239,11 @@ local dropdownList = make("ScrollingFrame", {
 	CanvasSize = UDim2.new(),
 	AutomaticCanvasSize = Enum.AutomaticSize.Y,
 	ScrollBarThickness = 3,
-	ScrollBarImageColor3 = C.border,
+	ScrollBarImageColor3 = VX.C.border,
 	ElasticBehavior = Enum.ElasticBehavior.Never,
-}, dropdownPanel)
+}, VX.dropdownPanel)
 
-local modalDim = make("TextButton", {
+ VX.modalDim = VX.make("TextButton", {
 	Visible = false,
 	Text = "",
 	AutoButtonColor = false,
@@ -1250,29 +1251,29 @@ local modalDim = make("TextButton", {
 	BackgroundTransparency = 1,
 	Size = UDim2.fromScale(1, 1),
 	ZIndex = 30,
-}, gui)
-local modalPanel = make("Frame", {
+}, VX.gui)
+ VX.modalPanel = VX.make("Frame", {
 	Visible = false,
 	AnchorPoint = Vector2.new(0.5, 0.5),
 	Position = UDim2.fromScale(0.5, 0.5),
 	Size = UDim2.fromOffset(420, 250),
-	BackgroundColor3 = C.panel,
+	BackgroundColor3 = VX.C.panel,
 	BorderSizePixel = 0,
 	ZIndex = 31,
-}, gui)
-corner(modalPanel, 14)
-stroke(modalPanel, 0.12)
-local modalTitle = make("TextLabel", {
+}, VX.gui)
+VX.corner(VX.modalPanel, 14)
+VX.stroke(VX.modalPanel, 0.12)
+ VX.modalTitle = VX.make("TextLabel", {
 	BackgroundTransparency = 1,
 	Position = UDim2.fromOffset(18, 16),
 	Size = UDim2.new(1, -36, 0, 24),
 	Font = Enum.Font.GothamBold,
 	TextSize = 18,
 	TextXAlignment = Enum.TextXAlignment.Left,
-	TextColor3 = C.white,
+	TextColor3 = VX.C.white,
 	Text = "",
-}, modalPanel)
-local modalBody = make("TextLabel", {
+}, VX.modalPanel)
+ VX.modalBody = VX.make("TextLabel", {
 	BackgroundTransparency = 1,
 	Position = UDim2.fromOffset(18, 46),
 	Size = UDim2.new(1, -36, 0, 58),
@@ -1281,33 +1282,33 @@ local modalBody = make("TextLabel", {
 	TextWrapped = true,
 	TextXAlignment = Enum.TextXAlignment.Left,
 	TextYAlignment = Enum.TextYAlignment.Top,
-	TextColor3 = C.muted,
+	TextColor3 = VX.C.muted,
 	Text = "",
-}, modalPanel)
-local modalBox = make("TextBox", {
+}, VX.modalPanel)
+ VX.modalBox = VX.make("TextBox", {
 	Visible = false,
 	Position = UDim2.fromOffset(18, 112),
 	Size = UDim2.new(1, -36, 0, 64),
-	BackgroundColor3 = C.card,
+	BackgroundColor3 = VX.C.card,
 	Text = "",
-	TextColor3 = C.white,
-	PlaceholderColor3 = C.muted,
+	TextColor3 = VX.C.white,
+	PlaceholderColor3 = VX.C.muted,
 	Font = Enum.Font.Gotham,
 	TextSize = 13,
 	TextWrapped = true,
 	ClearTextOnFocus = false,
 	MultiLine = true,
 	BorderSizePixel = 0,
-}, modalPanel)
-corner(modalBox, 8)
-local modalButtons = make("Frame", {
+}, VX.modalPanel)
+VX.corner(VX.modalBox, 8)
+ VX.modalButtons = VX.make("Frame", {
 	BackgroundTransparency = 1,
 	AnchorPoint = Vector2.new(0, 1),
 	Position = UDim2.new(0, 0, 1, -14),
 	Size = UDim2.new(1, 0, 0, 34),
-}, modalPanel)
+}, VX.modalPanel)
 
-local paletteDim = make("TextButton", {
+ VX.paletteDim = VX.make("TextButton", {
 	Visible = false,
 	Text = "",
 	AutoButtonColor = false,
@@ -1315,35 +1316,35 @@ local paletteDim = make("TextButton", {
 	BackgroundTransparency = 1,
 	Size = UDim2.fromScale(1, 1),
 	ZIndex = 40,
-}, gui)
-local palettePanel = make("CanvasGroup", {
+}, VX.gui)
+ VX.palettePanel = VX.make("CanvasGroup", {
 	Visible = false,
 	AnchorPoint = Vector2.new(0.5, 0.5),
 	Position = UDim2.fromScale(0.5, 0.46),
 	Size = UDim2.fromOffset(520, 420),
-	BackgroundColor3 = C.panel,
+	BackgroundColor3 = VX.C.panel,
 	BorderSizePixel = 0,
 	GroupTransparency = 1,
 	ZIndex = 41,
 	ClipsDescendants = true,
-}, gui)
-corner(palettePanel, 14)
-stroke(palettePanel, 0.12)
-local paletteBox = make("TextBox", {
+}, VX.gui)
+VX.corner(VX.palettePanel, 14)
+VX.stroke(VX.palettePanel, 0.12)
+ VX.paletteBox = VX.make("TextBox", {
 	Position = UDim2.fromOffset(14, 14),
 	Size = UDim2.new(1, -28, 0, 36),
-	BackgroundColor3 = C.card,
+	BackgroundColor3 = VX.C.card,
 	Text = "",
 	PlaceholderText = "Search features",
-	PlaceholderColor3 = C.muted,
-	TextColor3 = C.white,
+	PlaceholderColor3 = VX.C.muted,
+	TextColor3 = VX.C.white,
 	Font = Enum.Font.Gotham,
 	TextSize = 15,
 	ClearTextOnFocus = false,
 	BorderSizePixel = 0,
-}, palettePanel)
-corner(paletteBox, 8)
-local paletteList = make("ScrollingFrame", {
+}, VX.palettePanel)
+VX.corner(VX.paletteBox, 8)
+ VX.paletteList = VX.make("ScrollingFrame", {
 	Position = UDim2.fromOffset(10, 60),
 	Size = UDim2.new(1, -20, 1, -72),
 	BackgroundTransparency = 1,
@@ -1351,27 +1352,27 @@ local paletteList = make("ScrollingFrame", {
 	CanvasSize = UDim2.new(),
 	AutomaticCanvasSize = Enum.AutomaticSize.Y,
 	ScrollBarThickness = 4,
-	ScrollBarImageColor3 = C.border,
+	ScrollBarImageColor3 = VX.C.border,
 	ElasticBehavior = Enum.ElasticBehavior.Never,
-}, palettePanel)
+}, VX.palettePanel)
 
-local toastLayer = make("Frame", {
+ VX.toastLayer = VX.make("Frame", {
 	BackgroundTransparency = 1,
 	Size = UDim2.fromScale(1, 1),
 	ZIndex = 50,
-}, gui)
+}, VX.gui)
 
-local notify, requestSave, applyChrome, applyCrosshair, applyFov, applyHud, applyAll
-local setLowGraphics, navigate, renderPage, toggleWindow, ensureWindow, refreshHeader, refreshNav
-local openPalette, closePalette, closeDropdown, openModal, closeModal, confirm, promptBox, copyText
-local pushRecent, useFeature, bindHover, bindTip
 
-local function feature(def)
-	features[def.id] = def
-	table.insert(featureOrder, def.id)
+
+
+
+
+ function VX.feature(def)
+	VX.features[def.id] = def
+	table.insert(VX.featureOrder, def.id)
 end
 
-local function scoreFeature(query, def)
+ function VX.scoreFeature(query, def)
 	if query == "" then
 		return 1
 	end
@@ -1405,48 +1406,48 @@ local function scoreFeature(query, def)
 	return 18
 end
 
-bindHover = function(button, rest, over, press)
+VX.bindHover = function(button, rest, over, press)
 	button.AutoButtonColor = false
 	button:SetAttribute("Rest", nil)
 	button.MouseEnter:Connect(function()
 		if button:GetAttribute("Disabled") then
 			return
 		end
-		tween(button, 0.12, { BackgroundColor3 = over })
+		VX.tween(button, 0.12, { BackgroundColor3 = over })
 	end)
 	button.MouseLeave:Connect(function()
 		if button:GetAttribute("Disabled") then
 			return
 		end
 		local selected = button:GetAttribute("Selected")
-		tween(button, 0.12, { BackgroundColor3 = selected and C.hover or rest })
+		VX.tween(button, 0.12, { BackgroundColor3 = selected and VX.C.hover or rest })
 	end)
 	button.MouseButton1Down:Connect(function()
 		if button:GetAttribute("Disabled") then
 			return
 		end
-		tween(button, 0.06, { BackgroundColor3 = press or C.bg })
+		VX.tween(button, 0.06, { BackgroundColor3 = press or VX.C.bg })
 	end)
 	button.MouseButton1Up:Connect(function()
 		if button:GetAttribute("Disabled") then
 			return
 		end
-		tween(button, 0.1, { BackgroundColor3 = over })
+		VX.tween(button, 0.1, { BackgroundColor3 = over })
 	end)
 end
 
-bindTip = function(target, text)
+VX.bindTip = function(target, text)
 	target.MouseEnter:Connect(function()
-		tipToken += 1
-		local token = tipToken
-		task.delay(P.reducedMotion and 0 or 0.35, function()
-			if token ~= tipToken or not alive or not target.Parent then
+		VX.tipToken += 1
+		local token = VX.tipToken
+		task.delay(VX.P.reducedMotion and 0 or 0.35, function()
+			if token ~= VX.tipToken or not VX.alive or not target.Parent then
 				return
 			end
-			tipLabel.Text = text
+			VX.tipLabel.Text = text
 			local width = math.clamp(#text * 7 + 18, 52, 200)
-			tip.Size = UDim2.fromOffset(width, 26)
-			tip.Visible = true
+			VX.tip.Size = UDim2.fromOffset(width, 26)
+			VX.tip.Visible = true
 			local camera = workspace.CurrentCamera
 			local view = camera and camera.ViewportSize or Vector2.new(1280, 720)
 			local x = target.AbsolutePosition.X + target.AbsoluteSize.X * 0.5 - width * 0.5
@@ -1455,53 +1456,53 @@ bindTip = function(target, text)
 				y = target.AbsolutePosition.Y + target.AbsoluteSize.Y + 8
 			end
 			x = math.clamp(x, 8, math.max(8, view.X - width - 8))
-			tip.Position = UDim2.fromOffset(x, y)
+			VX.tip.Position = UDim2.fromOffset(x, y)
 		end)
 	end)
 	target.MouseLeave:Connect(function()
-		tipToken += 1
-		tip.Visible = false
+		VX.tipToken += 1
+		VX.tip.Visible = false
 	end)
 end
 
-local function clearScroll()
-	clearPageConns()
-	chartBars = nil
-	onPlayersChanged = nil
-	for _, child in ipairs(scroll:GetChildren()) do
+ function VX.clearScroll()
+	VX.clearPageConns()
+	VX.chartBars = nil
+	VX.onPlayersChanged = nil
+	for _, child in ipairs(VX.scroll:GetChildren()) do
 		child:Destroy()
 	end
-	scroll:SetAttribute("Lay", 0)
-	make("UIPadding", {
+	VX.scroll:SetAttribute("Lay", 0)
+	VX.make("UIPadding", {
 		PaddingTop = UDim.new(0, 12),
 		PaddingBottom = UDim.new(0, 16),
 		PaddingLeft = UDim.new(0, 12),
 		PaddingRight = UDim.new(0, 12),
-	}, scroll)
-	make("UIListLayout", {
+	}, VX.scroll)
+	VX.make("UIListLayout", {
 		Padding = UDim.new(0, 8),
 		SortOrder = Enum.SortOrder.LayoutOrder,
-	}, scroll)
-	scroll.CanvasPosition = Vector2.zero
+	}, VX.scroll)
+	VX.scroll.CanvasPosition = Vector2.zero
 end
 
-local function stack(parent, padding)
-	local frame = make("Frame", {
-		LayoutOrder = lay(parent),
-		BackgroundColor3 = C.card,
+ function VX.stack(parent, padding)
+	local frame = VX.make("Frame", {
+		LayoutOrder = VX.lay(parent),
+		BackgroundColor3 = VX.C.card,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, 0),
 		AutomaticSize = Enum.AutomaticSize.Y,
 	}, parent)
-	corner(frame, 12)
-	stroke(frame, 0.5)
-	make("UIPadding", {
+	VX.corner(frame, 12)
+	VX.stroke(frame, 0.5)
+	VX.make("UIPadding", {
 		PaddingTop = UDim.new(0, 12),
 		PaddingBottom = UDim.new(0, 12),
 		PaddingLeft = UDim.new(0, 12),
 		PaddingRight = UDim.new(0, 12),
 	}, frame)
-	make("UIListLayout", {
+	VX.make("UIListLayout", {
 		Padding = UDim.new(0, padding or 6),
 		SortOrder = Enum.SortOrder.LayoutOrder,
 	}, frame)
@@ -1509,52 +1510,52 @@ local function stack(parent, padding)
 	return frame
 end
 
-local function fixedRow(parent, height, color)
-	return make("Frame", {
-		LayoutOrder = lay(parent),
-		BackgroundColor3 = color or C.card,
+ function VX.fixedRow(parent, height, color)
+	return VX.make("Frame", {
+		LayoutOrder = VX.lay(parent),
+		BackgroundColor3 = color or VX.C.card,
 		BackgroundTransparency = color and 0 or 1,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, height),
 	}, parent)
 end
 
-local function textLabel(parent, text, size, color, bold, height)
-	return make("TextLabel", {
-		LayoutOrder = lay(parent),
+ function VX.textLabel(parent, text, size, color, bold, height)
+	return VX.make("TextLabel", {
+		LayoutOrder = VX.lay(parent),
 		BackgroundTransparency = 1,
 		Size = UDim2.new(1, 0, 0, height or (bold and 22 or 16)),
 		Font = bold and Enum.Font.GothamBold or Enum.Font.Gotham,
 		TextSize = size,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextYAlignment = Enum.TextYAlignment.Center,
-		TextColor3 = color or C.white,
+		TextColor3 = color or VX.C.white,
 		Text = text,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 	}, parent)
 end
 
-local function button(parent, textValue, callback, opts)
+ function VX.button(parent, textValue, callback, opts)
 	opts = opts or {}
-	local item = make("TextButton", {
-		LayoutOrder = opts.order or lay(parent),
+	local item = VX.make("TextButton", {
+		LayoutOrder = opts.order or VX.lay(parent),
 		Size = opts.size or UDim2.new(1, 0, 0, 34),
 		Position = opts.position or UDim2.fromOffset(0, 0),
 		AnchorPoint = opts.anchor or Vector2.new(0, 0),
-		BackgroundColor3 = opts.primary and C.white or C.hover,
+		BackgroundColor3 = opts.primary and VX.C.white or VX.C.hover,
 		Text = textValue,
-		TextColor3 = opts.primary and C.bg or C.white,
+		TextColor3 = opts.primary and VX.C.bg or VX.C.white,
 		Font = Enum.Font.GothamBold,
 		TextSize = 13,
 		AutoButtonColor = false,
 		BorderSizePixel = 0,
 	}, parent)
-	corner(item, 8)
-	bindHover(item, opts.primary and C.white or C.hover, opts.primary and Color3.fromRGB(226, 228, 232) or C.border, opts.primary and Color3.fromRGB(210, 212, 216) or C.bg)
+	VX.corner(item, 8)
+	VX.bindHover(item, opts.primary and VX.C.white or VX.C.hover, opts.primary and Color3.fromRGB(226, 228, 232) or VX.C.border, opts.primary and Color3.fromRGB(210, 212, 216) or VX.C.bg)
 	item.Activated:Connect(function()
 		if item:GetAttribute("Disabled") then
 			if opts.disabledReason then
-				notify(opts.disabledReason, "warning")
+				VX.notify(opts.disabledReason, "warning")
 			end
 			return
 		end
@@ -1562,23 +1563,23 @@ local function button(parent, textValue, callback, opts)
 	end)
 	if opts.disabled then
 		item:SetAttribute("Disabled", true)
-		item.TextColor3 = C.muted
-		item.BackgroundColor3 = C.card
+		item.TextColor3 = VX.C.muted
+		item.BackgroundColor3 = VX.C.card
 	end
 	return item
 end
 
-local function setFavourite(id, on)
+ function VX.setFavourite(id, on)
 	if on then
-		G.favorites[id] = true
+		VX.G.favorites[id] = true
 	else
-		G.favorites[id] = nil
+		VX.G.favorites[id] = nil
 	end
-	requestSave()
+	VX.requestSave()
 end
 
-local function heartButton(parent, featureId, xOffset)
-	local item = make("TextButton", {
+ function VX.heartButton(parent, featureId, xOffset)
+	local item = VX.make("TextButton", {
 		BackgroundTransparency = 1,
 		Text = "",
 		Size = UDim2.fromOffset(24, 24),
@@ -1586,23 +1587,23 @@ local function heartButton(parent, featureId, xOffset)
 		Position = UDim2.new(1, xOffset, 0.5, 0),
 		AutoButtonColor = false,
 	}, parent)
-	local holder = icon(item, "heart", 14, G.favorites[featureId] and C.violet or C.muted)
+	local holder = VX.icon(item, "heart", 14, VX.G.favorites[featureId] and VX.C.violet or VX.C.muted)
 	item.Activated:Connect(function()
-		local on = G.favorites[featureId] ~= true
-		setFavourite(featureId, on)
-		recolor(holder, on and C.violet or C.muted)
-		notify(on and "Saved to favourites." or "Removed from favourites.", "info")
+		local on = VX.G.favorites[featureId] ~= true
+		VX.setFavourite(featureId, on)
+		VX.recolor(holder, on and VX.C.violet or VX.C.muted)
+		VX.notify(on and "Saved to favourites." or "Removed from favourites.", "info")
 	end)
 	return item
 end
 
-local function toggle(parent, labelText, value, featureId, callback)
-	local row = fixedRow(parent, 36)
+ function VX.toggle(parent, labelText, value, featureId, callback)
+	local row = VX.fixedRow(parent, 36)
 	if featureId then
-		local holder = icon(row, "heart", 14, G.favorites[featureId] and C.violet or C.muted)
+		local holder = VX.icon(row, "heart", 14, VX.G.favorites[featureId] and VX.C.violet or VX.C.muted)
 		holder.AnchorPoint = Vector2.new(0, 0.5)
 		holder.Position = UDim2.new(0, 0, 0.5, 0)
-		local hit = make("TextButton", {
+		local hit = VX.make("TextButton", {
 			BackgroundTransparency = 1,
 			Text = "",
 			Size = UDim2.fromOffset(24, 24),
@@ -1610,40 +1611,40 @@ local function toggle(parent, labelText, value, featureId, callback)
 			AutoButtonColor = false,
 		}, row)
 		hit.Activated:Connect(function()
-			local on = G.favorites[featureId] ~= true
-			setFavourite(featureId, on)
-			recolor(holder, on and C.violet or C.muted)
+			local on = VX.G.favorites[featureId] ~= true
+			VX.setFavourite(featureId, on)
+			VX.recolor(holder, on and VX.C.violet or VX.C.muted)
 		end)
 	end
 	local inset = featureId and 28 or 0
-	make("TextLabel", {
+	VX.make("TextLabel", {
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(inset, 0),
 		Size = UDim2.new(1, -(78 + inset), 1, 0),
 		Font = Enum.Font.Gotham,
 		TextSize = 13,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		TextColor3 = C.white,
+		TextColor3 = VX.C.white,
 		Text = labelText,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 	}, row)
-	local switch = make("TextButton", {
+	local switch = VX.make("TextButton", {
 		AnchorPoint = Vector2.new(1, 0.5),
 		Position = UDim2.new(1, 0, 0.5, 0),
 		Size = UDim2.fromOffset(44, 24),
-		BackgroundColor3 = value and C.white or C.hover,
+		BackgroundColor3 = value and VX.C.white or VX.C.hover,
 		Text = "",
 		AutoButtonColor = false,
 		BorderSizePixel = 0,
 	}, row)
-	corner(switch, 12)
-	local knob = make("Frame", {
+	VX.corner(switch, 12)
+	local knob = VX.make("Frame", {
 		Position = value and UDim2.fromOffset(23, 3) or UDim2.fromOffset(3, 3),
 		Size = UDim2.fromOffset(18, 18),
-		BackgroundColor3 = value and C.bg or C.muted,
+		BackgroundColor3 = value and VX.C.bg or VX.C.muted,
 		BorderSizePixel = 0,
 	}, switch)
-	corner(knob, 9)
+	VX.corner(knob, 9)
 	local on = value == true
 	switch.Activated:Connect(function()
 		local nextValue = not on
@@ -1652,24 +1653,24 @@ local function toggle(parent, labelText, value, featureId, callback)
 			return
 		end
 		on = nextValue
-		tween(switch, 0.16, { BackgroundColor3 = on and C.white or C.hover })
-		tween(knob, 0.16, {
+		VX.tween(switch, 0.16, { BackgroundColor3 = on and VX.C.white or VX.C.hover })
+		VX.tween(knob, 0.16, {
 			Position = on and UDim2.fromOffset(23, 3) or UDim2.fromOffset(3, 3),
-			BackgroundColor3 = on and C.bg or C.muted,
+			BackgroundColor3 = on and VX.C.bg or VX.C.muted,
 		})
 	end)
 	return row
 end
 
-local function slider(parent, labelText, minValue, maxValue, value, step, featureId, callback)
-	local row = fixedRow(parent, 52)
+ function VX.slider(parent, labelText, minValue, maxValue, value, step, featureId, callback)
+	local row = VX.fixedRow(parent, 52)
 	local inset = 0
 	if featureId then
 		inset = 28
-		local holder = icon(row, "heart", 14, G.favorites[featureId] and C.violet or C.muted)
+		local holder = VX.icon(row, "heart", 14, VX.G.favorites[featureId] and VX.C.violet or VX.C.muted)
 		holder.Position = UDim2.fromOffset(12, 4)
 		holder.AnchorPoint = Vector2.new(0, 0)
-		local hit = make("TextButton", {
+		local hit = VX.make("TextButton", {
 			BackgroundTransparency = 1,
 			Text = "",
 			Size = UDim2.fromOffset(24, 24),
@@ -1677,23 +1678,23 @@ local function slider(parent, labelText, minValue, maxValue, value, step, featur
 			AutoButtonColor = false,
 		}, row)
 		hit.Activated:Connect(function()
-			local on = G.favorites[featureId] ~= true
-			setFavourite(featureId, on)
-			recolor(holder, on and C.violet or C.muted)
+			local on = VX.G.favorites[featureId] ~= true
+			VX.setFavourite(featureId, on)
+			VX.recolor(holder, on and VX.C.violet or VX.C.muted)
 		end)
 	end
-	make("TextLabel", {
+	VX.make("TextLabel", {
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(inset, 2),
 		Size = UDim2.new(1, -(72 + inset), 0, 18),
 		Font = Enum.Font.Gotham,
 		TextSize = 13,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		TextColor3 = C.white,
+		TextColor3 = VX.C.white,
 		Text = labelText,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 	}, row)
-	local valueLabel = make("TextLabel", {
+	local valueLabel = VX.make("TextLabel", {
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.new(1, 0, 0, 2),
@@ -1701,38 +1702,38 @@ local function slider(parent, labelText, minValue, maxValue, value, step, featur
 		Font = Enum.Font.GothamBold,
 		TextSize = 13,
 		TextXAlignment = Enum.TextXAlignment.Right,
-		TextColor3 = C.white,
+		TextColor3 = VX.C.white,
 		Text = "",
 	}, row)
-	local hit = make("TextButton", {
+	local hit = VX.make("TextButton", {
 		Text = "",
 		AutoButtonColor = false,
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(0, 28),
 		Size = UDim2.new(1, 0, 0, 18),
 	}, row)
-	local track = make("Frame", {
+	local track = VX.make("Frame", {
 		AnchorPoint = Vector2.new(0, 0.5),
 		Position = UDim2.new(0, 0, 0.5, 0),
 		Size = UDim2.new(1, 0, 0, 4),
-		BackgroundColor3 = C.hover,
+		BackgroundColor3 = VX.C.hover,
 		BorderSizePixel = 0,
 	}, hit)
-	corner(track, 4)
-	local fill = make("Frame", {
+	VX.corner(track, 4)
+	local fill = VX.make("Frame", {
 		Size = UDim2.fromScale(0, 1),
-		BackgroundColor3 = C.white,
+		BackgroundColor3 = VX.C.white,
 		BorderSizePixel = 0,
 	}, track)
-	corner(fill, 4)
-	local knob = make("Frame", {
+	VX.corner(fill, 4)
+	local knob = VX.make("Frame", {
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0, 0.5),
 		Size = UDim2.fromOffset(14, 14),
-		BackgroundColor3 = C.white,
+		BackgroundColor3 = VX.C.white,
 		BorderSizePixel = 0,
 	}, hit)
-	corner(knob, 8)
+	VX.corner(knob, 8)
 	local current = math.clamp(value, minValue, maxValue)
 	local function format(number)
 		if step >= 1 then
@@ -1766,7 +1767,7 @@ local function slider(parent, labelText, minValue, maxValue, value, step, featur
 			fromX(input.Position.X)
 		end
 	end)
-	trackPage(UserInputService.InputChanged:Connect(function(input)
+	VX.trackPage(VX.UserInputService.InputChanged:Connect(function(input)
 		if not dragging then
 			return
 		end
@@ -1774,7 +1775,7 @@ local function slider(parent, labelText, minValue, maxValue, value, step, featur
 			fromX(input.Position.X)
 		end
 	end))
-	trackPage(UserInputService.InputEnded:Connect(function(input)
+	VX.trackPage(VX.UserInputService.InputEnded:Connect(function(input)
 		if not dragging then
 			return
 		end
@@ -1785,39 +1786,39 @@ local function slider(parent, labelText, minValue, maxValue, value, step, featur
 	end))
 end
 
-local function closeDropdown()
-	dropdownCatcher.Visible = false
-	dropdownPanel.Visible = false
-	dropdownCallback = nil
-	dropdownSearch.Text = ""
+ function VX.closeDropdown()
+	VX.dropdownCatcher.Visible = false
+	VX.dropdownPanel.Visible = false
+	VX.dropdownCallback = nil
+	VX.dropdownSearch.Text = ""
 end
 
-local function fillDropdown(filter)
-	for _, child in ipairs(dropdownList:GetChildren()) do
+ function VX.fillDropdown(filter)
+	for _, child in ipairs(VX.dropdownList:GetChildren()) do
 		child:Destroy()
 	end
-	make("UIListLayout", { Padding = UDim.new(0, 2), SortOrder = Enum.SortOrder.LayoutOrder }, dropdownList)
+	VX.make("UIListLayout", { Padding = UDim.new(0, 2), SortOrder = Enum.SortOrder.LayoutOrder }, VX.dropdownList)
 	local shown = 0
 	filter = string.lower(filter or "")
-	for _, option in ipairs(dropdownOptions) do
+	for _, option in ipairs(VX.dropdownOptions) do
 		if filter == "" or string.find(string.lower(option), filter, 1, true) then
 			shown += 1
-			local item = make("TextButton", {
+			local item = VX.make("TextButton", {
 				LayoutOrder = shown,
 				Size = UDim2.new(1, 0, 0, 28),
-				BackgroundColor3 = C.panel,
+				BackgroundColor3 = VX.C.panel,
 				Text = option,
-				TextColor3 = C.white,
+				TextColor3 = VX.C.white,
 				Font = Enum.Font.Gotham,
 				TextSize = 13,
 				AutoButtonColor = false,
 				BorderSizePixel = 0,
-			}, dropdownList)
-			corner(item, 6)
-			bindHover(item, C.panel, C.hover, C.bg)
+			}, VX.dropdownList)
+			VX.corner(item, 6)
+			VX.bindHover(item, VX.C.panel, VX.C.hover, VX.C.bg)
 			item.Activated:Connect(function()
-				local callback = dropdownCallback
-				closeDropdown()
+				local callback = VX.dropdownCallback
+				VX.closeDropdown()
 				if callback then
 					callback(option)
 				end
@@ -1825,26 +1826,26 @@ local function fillDropdown(filter)
 		end
 	end
 	if shown == 0 then
-		make("TextLabel", {
+		VX.make("TextLabel", {
 			BackgroundTransparency = 1,
 			Size = UDim2.new(1, 0, 0, 28),
 			Text = "No matches",
-			TextColor3 = C.muted,
+			TextColor3 = VX.C.muted,
 			Font = Enum.Font.Gotham,
 			TextSize = 13,
-		}, dropdownList)
+		}, VX.dropdownList)
 	end
 end
 
-local function openDropdown(anchor, options, callback)
-	closeDropdown()
-	dropdownOptions = options
-	dropdownCallback = callback
+ function VX.openDropdown(anchor, options, callback)
+	VX.closeDropdown()
+	VX.dropdownOptions = options
+	VX.dropdownCallback = callback
 	local showSearch = #options > 6
-	dropdownSearch.Visible = showSearch
-	dropdownList.Position = UDim2.fromOffset(6, showSearch and 42 or 6)
-	dropdownList.Size = UDim2.new(1, -12, 1, showSearch and -48 or -12)
-	fillDropdown("")
+	VX.dropdownSearch.Visible = showSearch
+	VX.dropdownList.Position = UDim2.fromOffset(6, showSearch and 42 or 6)
+	VX.dropdownList.Size = UDim2.new(1, -12, 1, showSearch and -48 or -12)
+	VX.fillDropdown("")
 	local rows = math.min(#options, 6)
 	local height = rows * 30 + (showSearch and 46 or 12)
 	local camera = workspace.CurrentCamera
@@ -1858,49 +1859,49 @@ local function openDropdown(anchor, options, callback)
 	if y + height > view.Y - 8 then
 		y = math.max(8, anchor.AbsolutePosition.Y - height - 6)
 	end
-	dropdownPanel.Position = UDim2.fromOffset(x, y)
-	dropdownPanel.Size = UDim2.fromOffset(width, height)
-	dropdownCatcher.Visible = true
-	dropdownPanel.Visible = true
+	VX.dropdownPanel.Position = UDim2.fromOffset(x, y)
+	VX.dropdownPanel.Size = UDim2.fromOffset(width, height)
+	VX.dropdownCatcher.Visible = true
+	VX.dropdownPanel.Visible = true
 end
 
-dropdownSearch:GetPropertyChangedSignal("Text"):Connect(function()
-	if dropdownPanel.Visible then
-		fillDropdown(dropdownSearch.Text)
+VX.dropdownSearch:GetPropertyChangedSignal("Text"):Connect(function()
+	if VX.dropdownPanel.Visible then
+		VX.fillDropdown(VX.dropdownSearch.Text)
 	end
 end)
-dropdownCatcher.Activated:Connect(closeDropdown)
+VX.dropdownCatcher.Activated:Connect(VX.closeDropdown)
 
-local function dropdown(parent, labelText, options, value, callback)
-	local row = fixedRow(parent, 36)
-	make("TextLabel", {
+ function VX.dropdown(parent, labelText, options, value, callback)
+	local row = VX.fixedRow(parent, 36)
+	VX.make("TextLabel", {
 		BackgroundTransparency = 1,
 		Size = UDim2.new(1, -168, 1, 0),
 		Font = Enum.Font.Gotham,
 		TextSize = 13,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		TextColor3 = C.white,
+		TextColor3 = VX.C.white,
 		Text = labelText,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 	}, row)
-	local picker = make("TextButton", {
+	local picker = VX.make("TextButton", {
 		AnchorPoint = Vector2.new(1, 0.5),
 		Position = UDim2.new(1, 0, 0.5, 0),
 		Size = UDim2.fromOffset(156, 28),
-		BackgroundColor3 = C.hover,
+		BackgroundColor3 = VX.C.hover,
 		Text = "  " .. tostring(value),
-		TextColor3 = C.white,
+		TextColor3 = VX.C.white,
 		Font = Enum.Font.Gotham,
 		TextSize = 12,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		AutoButtonColor = false,
 		BorderSizePixel = 0,
 	}, row)
-	corner(picker, 8)
-	icon(picker, "chevronDown", 12, C.muted).Position = UDim2.new(1, -16, 0.5, 0)
-	bindHover(picker, C.hover, C.border, C.bg)
+	VX.corner(picker, 8)
+	VX.icon(picker, "chevronDown", 12, VX.C.muted).Position = UDim2.new(1, -16, 0.5, 0)
+	VX.bindHover(picker, VX.C.hover, VX.C.border, VX.C.bg)
 	picker.Activated:Connect(function()
-		openDropdown(picker, options, function(choice)
+		VX.openDropdown(picker, options, function(choice)
 			picker.Text = "  " .. choice
 			callback(choice)
 		end)
@@ -1908,56 +1909,56 @@ local function dropdown(parent, labelText, options, value, callback)
 	return picker
 end
 
-notify = function(text, kind)
+VX.notify = function(text, kind)
 	kind = kind or "info"
-	table.insert(history, 1, { text = text, kind = kind, at = os.clock() })
-	while #history > 20 do
-		table.remove(history)
+	table.insert(VX.history, 1, { text = text, kind = kind, at = os.clock() })
+	while #VX.history > 20 do
+		table.remove(VX.history)
 	end
-	if not P.notifications and kind ~= "error" then
+	if not VX.P.notifications and kind ~= "error" then
 		return
 	end
-	local last = toastLayer:FindFirstChild("Last")
+	local last = VX.toastLayer:FindFirstChild("Last")
 	if last and last:GetAttribute("Body") == text and os.clock() - (last:GetAttribute("At") or 0) < 1.2 then
 		return
 	end
 	local count = 0
-	for _, child in ipairs(toastLayer:GetChildren()) do
+	for _, child in ipairs(VX.toastLayer:GetChildren()) do
 		if child:IsA("Frame") then
 			count += 1
 		end
 	end
 	if count >= 4 then
-		local oldest = toastLayer:FindFirstChild("Toast1") or toastLayer:FindFirstChildWhichIsA("Frame")
+		local oldest = VX.toastLayer:FindFirstChild("Toast1") or VX.toastLayer:FindFirstChildWhichIsA("Frame")
 		if oldest then
 			oldest:Destroy()
 		end
 	end
-	local colors = { success = C.green, info = C.cyan, warning = C.violet, error = C.red }
-	local frame = make("Frame", {
+	local colors = { success = VX.C.green, info = VX.C.cyan, warning = VX.C.violet, error = VX.C.red }
+	local frame = VX.make("Frame", {
 		Name = "Toast",
 		AnchorPoint = Vector2.new(1, 0),
 		Size = UDim2.fromOffset(286, 56),
-		BackgroundColor3 = C.panel,
+		BackgroundColor3 = VX.C.panel,
 		BorderSizePixel = 0,
-	}, toastLayer)
+	}, VX.toastLayer)
 	frame:SetAttribute("Body", text)
 	frame:SetAttribute("At", os.clock())
 	frame:SetAttribute("Last", true)
-	local previous = toastLayer:FindFirstChild("LastMark")
+	local previous = VX.toastLayer:FindFirstChild("LastMark")
 	if previous then
 		previous.Name = "Toast"
 	end
 	frame.Name = "LastMark"
-	corner(frame, 10)
-	stroke(frame, 0.2)
-	make("Frame", {
+	VX.corner(frame, 10)
+	VX.stroke(frame, 0.2)
+	VX.make("Frame", {
 		Size = UDim2.new(0, 3, 1, -16),
 		Position = UDim2.fromOffset(8, 8),
-		BackgroundColor3 = colors[kind] or C.cyan,
+		BackgroundColor3 = colors[kind] or VX.C.cyan,
 		BorderSizePixel = 0,
 	}, frame)
-	make("TextLabel", {
+	VX.make("TextLabel", {
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(20, 8),
 		Size = UDim2.new(1, -48, 1, -16),
@@ -1966,11 +1967,11 @@ notify = function(text, kind)
 		TextWrapped = true,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextYAlignment = Enum.TextYAlignment.Center,
-		TextColor3 = C.white,
+		TextColor3 = VX.C.white,
 		Text = text,
 	}, frame)
 	local dismiss
-	local closer = make("TextButton", {
+	local closer = VX.make("TextButton", {
 		AnchorPoint = Vector2.new(1, 0.5),
 		Position = UDim2.new(1, -8, 0.5, 0),
 		Size = UDim2.fromOffset(22, 22),
@@ -1978,12 +1979,12 @@ notify = function(text, kind)
 		Text = "",
 		AutoButtonColor = false,
 	}, frame)
-	icon(closer, "close", 12, C.muted)
+	VX.icon(closer, "close", 12, VX.C.muted)
 	dismiss = function()
 		if frame.Parent then
 			frame:Destroy()
 			local y = 16
-			for _, child in ipairs(toastLayer:GetChildren()) do
+			for _, child in ipairs(VX.toastLayer:GetChildren()) do
 				if child:IsA("Frame") then
 					child.Position = UDim2.new(1, -16, 0, y)
 					y += 64
@@ -1993,7 +1994,7 @@ notify = function(text, kind)
 	end
 	closer.Activated:Connect(dismiss)
 	local y = 16
-	for _, child in ipairs(toastLayer:GetChildren()) do
+	for _, child in ipairs(VX.toastLayer:GetChildren()) do
 		if child:IsA("Frame") then
 			child.Position = UDim2.new(1, -16, 0, y)
 			y += 64
@@ -2002,18 +2003,18 @@ notify = function(text, kind)
 	task.delay(3.4, dismiss)
 end
 
-requestSave = function()
-	if saveQueued or typeof(writefile) ~= "function" then
+VX.requestSave = function()
+	if VX.saveQueued or typeof(writefile) ~= "function" then
 		return
 	end
-	saveQueued = true
+	VX.saveQueued = true
 	task.delay(0.45, function()
-		saveQueued = false
-		if not alive then
+		VX.saveQueued = false
+		if not VX.alive then
 			return
 		end
 		local ok, encoded = pcall(function()
-			return HttpService:JSONEncode({ version = 5, global = G })
+			return VX.HttpService:JSONEncode({ version = 5, global = VX.G })
 		end)
 		if not ok then
 			warn("[VEXORA] Could not encode settings: " .. tostring(encoded))
@@ -2021,29 +2022,29 @@ requestSave = function()
 		end
 		local wrote, err = pcall(writefile, "VEXORA_5_settings.json", encoded)
 		if wrote then
-			storageMode = "file"
-			storageNote = "Saved in VEXORA_5_settings.json on this device."
+			VX.storageMode = "file"
+			VX.storageNote = "Saved in VEXORA_5_settings.json on this device."
 		else
-			storageMode = "session"
-			storageNote = "Couldn't write the settings file. Export a copy to keep it."
-			if not saveWarned then
-				saveWarned = true
+			VX.storageMode = "session"
+			VX.storageNote = "Couldn't write the settings file. Export a copy to keep it."
+			if not VX.saveWarned then
+				VX.saveWarned = true
 				warn("[VEXORA] Settings file was not written: " .. tostring(err))
-				notify("Settings stayed in this session. The file could not be written.", "warning")
+				VX.notify("Settings stayed in this session. The file could not be written.", "warning")
 			end
 		end
 	end)
 end
 
-applyCrosshair = function()
-	for _, child in ipairs(crosshairRoot:GetChildren()) do
+VX.applyCrosshair = function()
+	for _, child in ipairs(VX.crosshairRoot:GetChildren()) do
 		child:Destroy()
 	end
-	local crosshair = P.crosshair
+	local crosshair = VX.P.crosshair
 	if not crosshair.enabled then
 		return
 	end
-	local color = COLOR_VALUES[crosshair.color] or C.white
+	local color = VX.COLOR_VALUES[crosshair.color] or VX.C.white
 	local transparency = 1 - math.clamp(crosshair.opacity, 0.25, 1)
 	local arm = crosshair.size
 	local thick = crosshair.thickness
@@ -2070,7 +2071,7 @@ applyCrosshair = function()
 			outline.Transparency = transparency
 			outline.Parent = frame
 		end
-		frame.Parent = crosshairRoot
+		frame.Parent = VX.crosshairRoot
 	end
 	if crosshair.style == "Dot" then
 		part(0, 0, thick + 2, thick + 2, true, false)
@@ -2086,92 +2087,92 @@ applyCrosshair = function()
 	end
 end
 
-applyFov = function(smooth)
-	if type(P.fov) ~= "number" then
+VX.applyFov = function(smooth)
+	if type(VX.P.fov) ~= "number" then
 		return
 	end
 	local camera = workspace.CurrentCamera
 	if not camera then
 		return
 	end
-	local goal = P.fov
-	if smooth and P.smoothFov and not P.reducedMotion then
-		TweenService:Create(camera, TweenInfo.new(0.22, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+	local goal = VX.P.fov
+	if smooth and VX.P.smoothFov and not VX.P.reducedMotion then
+		VX.TweenService:Create(camera, TweenInfo.new(0.22, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 			FieldOfView = goal,
 		}):Play()
 	else
 		camera.FieldOfView = goal
 	end
-	setWatch("fov", "Field of view    " .. fovText())
+	VX.setWatch("fov", "Field of view    " .. VX.fovText())
 end
 
-applyHud = function()
-	hud.Visible = bootDone and P.hud.visible == true
-	if not hudDrag then
-		hud.Position = UDim2.fromOffset(P.hud.x or 16, P.hud.y or 16)
+VX.applyHud = function()
+	VX.hud.Visible = VX.bootDone and VX.P.hud.visible == true
+	if not VX.hudDrag then
+		VX.hud.Position = UDim2.fromOffset(VX.P.hud.x or 16, VX.P.hud.y or 16)
 	end
 end
 
-setLowGraphics = function(on)
+VX.setLowGraphics = function(on)
 	local ok, err = pcall(function()
 		local settings = UserSettings():GetService("UserGameSettings")
 		if on then
-			if previousQuality == nil then
-				previousQuality = settings.SavedQualityLevel
+			if VX.previousQuality == nil then
+				VX.previousQuality = settings.SavedQualityLevel
 			end
 			settings.SavedQualityLevel = Enum.SavedQualitySetting.QualityLevel1
 		else
-			if previousQuality ~= nil then
-				settings.SavedQualityLevel = previousQuality
+			if VX.previousQuality ~= nil then
+				settings.SavedQualityLevel = VX.previousQuality
 			end
-			previousQuality = nil
+			VX.previousQuality = nil
 		end
 	end)
 	if not ok then
-		P.lowGraphics = false
+		VX.P.lowGraphics = false
 		warn("[VEXORA] Graphics quality was not changed: " .. tostring(err))
-		notify("Graphics quality can't be changed on this client.", "error")
+		VX.notify("Graphics quality can't be changed on this client.", "error")
 		return false
 	end
-	P.lowGraphics = on
-	setWatch("graphics", "Graphics    " .. graphicsText())
+	VX.P.lowGraphics = on
+	VX.setWatch("graphics", "Graphics    " .. VX.graphicsText())
 	return true
 end
 
-applyChrome = function()
-	if not G.sidebar and not G.dock then
-		G.dock = true
+VX.applyChrome = function()
+	if not VX.G.sidebar and not VX.G.dock then
+		VX.G.dock = true
 	end
-	sidebar.Visible = G.sidebar
-	local side = G.sidebar and SIDE or 0
-	main.Position = UDim2.fromOffset(side, 0)
-	main.Size = UDim2.new(1, -side, 1, 0)
-	grid.Visible = P.grid ~= false
-	pulseLayer.Visible = P.pulses ~= false and P.reducedMotion ~= true
-	glow.Visible = true
-	dock.Visible = G.dock and bootDone
-	uiScale.Scale = computeScale()
+	VX.sidebar.Visible = VX.G.sidebar
+	local side = VX.G.sidebar and VX.SIDE or 0
+	VX.main.Position = UDim2.fromOffset(side, 0)
+	VX.main.Size = UDim2.new(1, -side, 1, 0)
+	VX.grid.Visible = VX.P.grid ~= false
+	VX.pulseLayer.Visible = VX.P.pulses ~= false and VX.P.reducedMotion ~= true
+	VX.glow.Visible = true
+	VX.dock.Visible = VX.G.dock and VX.bootDone
+	VX.uiScale.Scale = VX.computeScale()
 	local camera = workspace.CurrentCamera
 	if camera then
-		dockScale.Scale = math.clamp(math.min(1, (camera.ViewportSize.X - 24) / 340), 0.75, 1)
+		VX.dockScale.Scale = math.clamp(math.min(1, (camera.ViewportSize.X - 24) / 340), 0.75, 1)
 	end
-	if windowOpen then
-		window.GroupTransparency = shownTransparency()
-	end
-end
-
-applyAll = function()
-	applyChrome()
-	applyAccent()
-	applyCrosshair()
-	applyHud()
-	applyFov(false)
-	if graphicsAvailable then
-		setLowGraphics(P.lowGraphics == true)
+	if VX.windowOpen then
+		VX.window.GroupTransparency = VX.shownTransparency()
 	end
 end
 
-refreshHeader = function()
+VX.applyAll = function()
+	VX.applyChrome()
+	VX.applyAccent()
+	VX.applyCrosshair()
+	VX.applyHud()
+	VX.applyFov(false)
+	if VX.graphicsAvailable then
+		VX.setLowGraphics(VX.P.lowGraphics == true)
+	end
+end
+
+VX.refreshHeader = function()
 	local names = {
 		Home = "Home",
 		Games = "Games",
@@ -2179,105 +2180,105 @@ refreshHeader = function()
 		Urban = "Urban Reload",
 		Settings = "Settings",
 	}
-	title.Text = names[currentPage] or "VEXORA"
-	local selected = gameById(selectedId)
-	subtitle.Text = "VEXORA   /   5.0   /   " .. (selected and selected.name or "No profile")
+	VX.title.Text = names[VX.currentPage] or "VEXORA"
+	local selected = VX.gameById(VX.selectedId)
+	VX.subtitle.Text = "VEXORA   /   5.0   /   " .. (selected and selected.name or "No profile")
 end
 
-refreshNav = function()
-	for page, group in pairs(navButtons) do
-		local selected = page == currentPage
+VX.refreshNav = function()
+	for page, group in pairs(VX.navButtons) do
+		local selected = page == VX.currentPage
 		for _, buttonObj in ipairs({ group.side, group.dock }) do
 			if buttonObj then
 				buttonObj:SetAttribute("Selected", selected)
-				buttonObj.BackgroundColor3 = selected and C.hover or (buttonObj.Parent == dockItems and C.card or C.panel)
+				buttonObj.BackgroundColor3 = selected and VX.C.hover or (buttonObj.Parent == VX.dockItems and VX.C.card or VX.C.panel)
 				local holder = buttonObj:FindFirstChild("Icon")
 				if holder then
-					recolor(holder, selected and C.white or C.muted)
+					VX.recolor(holder, selected and VX.C.white or VX.C.muted)
 				end
 				local mark = buttonObj:FindFirstChild("Mark")
 				if mark then
 					mark.Visible = selected
-					mark.BackgroundColor3 = accentColor()
+					mark.BackgroundColor3 = VX.accentColor()
 				end
 			end
 		end
 	end
 end
 
-local function layoutBody()
-	local showTabs = currentPage == "Universal"
-	tabBar.Visible = showTabs
-	tabBar.Size = UDim2.new(1, 0, 0, showTabs and 40 or 0)
-	content.Position = UDim2.fromOffset(0, showTabs and 40 or 0)
-	content.Size = UDim2.new(1, 0, 1, showTabs and -40 or 0)
-	for _, child in ipairs(tabBar:GetChildren()) do
+ function VX.layoutBody()
+	local showTabs = VX.currentPage == "Universal"
+	VX.tabBar.Visible = showTabs
+	VX.tabBar.Size = UDim2.new(1, 0, 0, showTabs and 40 or 0)
+	VX.content.Position = UDim2.fromOffset(0, showTabs and 40 or 0)
+	VX.content.Size = UDim2.new(1, 0, 1, showTabs and -40 or 0)
+	for _, child in ipairs(VX.tabBar:GetChildren()) do
 		if child:IsA("TextButton") then
-			local on = child.Name == currentTab
-			child.BackgroundColor3 = on and C.hover or C.bg
-			child.TextColor3 = on and C.white or C.muted
+			local on = child.Name == VX.currentTab
+			child.BackgroundColor3 = on and VX.C.hover or VX.C.bg
+			child.TextColor3 = on and VX.C.white or VX.C.muted
 		end
 	end
 end
 
-local function note(parent, text)
+ function VX.note(parent, text)
 	local rows = math.clamp(math.ceil(#text / 62), 2, 6)
-	local label = textLabel(parent, text, 12, C.muted, false, rows * 16)
+	local label = VX.textLabel(parent, text, 12, VX.C.muted, false, rows * 16)
 	label.TextWrapped = true
 	label.TextTruncate = Enum.TextTruncate.None
 	label.TextYAlignment = Enum.TextYAlignment.Top
 	return label
 end
 
-local function stat(parent, text, key)
-	local label = textLabel(parent, text, 13, C.white, false, 18)
+ function VX.stat(parent, text, key)
+	local label = VX.textLabel(parent, text, 13, VX.C.white, false, 18)
 	if key then
-		watch(key, label)
+		VX.watch(key, label)
 	end
 	return label
 end
 
-closeModal = function()
-	if not modalOpen then
+VX.closeModal = function()
+	if not VX.modalOpen then
 		return
 	end
-	modalOpen = false
-	local fade = tween(modalDim, 0.14, { BackgroundTransparency = 1 })
-	tween(modalPanel, 0.14, { Position = UDim2.new(0.5, 0, 0.5, 10) })
+	VX.modalOpen = false
+	local fade = VX.tween(VX.modalDim, 0.14, { BackgroundTransparency = 1 })
+	VX.tween(VX.modalPanel, 0.14, { Position = UDim2.new(0.5, 0, 0.5, 10) })
 	fade.Completed:Connect(function()
-		if not modalOpen then
-			modalDim.Visible = false
-			modalPanel.Visible = false
+		if not VX.modalOpen then
+			VX.modalDim.Visible = false
+			VX.modalPanel.Visible = false
 		end
 	end)
 end
 
-openModal = function(opts)
-	closeDropdown()
-	if paletteOpen then
-		closePalette()
+VX.openModal = function(opts)
+	VX.closeDropdown()
+	if VX.paletteOpen then
+		VX.closePalette()
 	end
-	modalOpen = true
-	modalTitle.Text = opts.title or ""
-	modalBody.Text = opts.body or ""
-	modalBox.Visible = opts.text ~= nil or opts.editable == true
-	modalBox.Text = opts.text or ""
-	modalBox.PlaceholderText = opts.placeholder or ""
-	modalBox.TextEditable = opts.editable ~= false
+	VX.modalOpen = true
+	VX.modalTitle.Text = opts.title or ""
+	VX.modalBody.Text = opts.body or ""
+	VX.modalBox.Visible = opts.text ~= nil or opts.editable == true
+	VX.modalBox.Text = opts.text or ""
+	VX.modalBox.PlaceholderText = opts.placeholder or ""
+	VX.modalBox.TextEditable = opts.editable ~= false
 	if opts.editable then
-		modalBox.TextEditable = true
+		VX.modalBox.TextEditable = true
 	end
 	if opts.text and opts.editable == nil then
-		modalBox.TextEditable = true
+		VX.modalBox.TextEditable = true
 	end
-	for _, child in ipairs(modalButtons:GetChildren()) do
+	for _, child in ipairs(VX.modalButtons:GetChildren()) do
 		child:Destroy()
 	end
 	local list = opts.buttons or { { text = "Close", primary = true } }
 	for index, spec in ipairs(list) do
-		local item = button(modalButtons, spec.text, function()
-			local value = modalBox.Text
-			closeModal()
+		local item = VX.button(VX.modalButtons, spec.text, function()
+			local value = VX.modalBox.Text
+			VX.closeModal()
 			if spec.action then
 				spec.action(value)
 			end
@@ -2288,29 +2289,29 @@ openModal = function(opts)
 			size = UDim2.fromOffset(100, 32),
 			order = index,
 		})
-		item.Parent = modalButtons
+		item.Parent = VX.modalButtons
 	end
-	modalDim.Visible = true
-	modalDim.BackgroundTransparency = 1
-	modalPanel.Visible = true
-	modalPanel.Position = UDim2.new(0.5, 0, 0.5, 12)
-	tween(modalDim, 0.16, { BackgroundTransparency = 0.42 })
-	tween(modalPanel, 0.18, { Position = UDim2.fromScale(0.5, 0.5) })
-	if modalBox.Visible then
+	VX.modalDim.Visible = true
+	VX.modalDim.BackgroundTransparency = 1
+	VX.modalPanel.Visible = true
+	VX.modalPanel.Position = UDim2.new(0.5, 0, 0.5, 12)
+	VX.tween(VX.modalDim, 0.16, { BackgroundTransparency = 0.42 })
+	VX.tween(VX.modalPanel, 0.18, { Position = UDim2.fromScale(0.5, 0.5) })
+	if VX.modalBox.Visible then
 		task.defer(function()
-			if modalBox.Parent and modalOpen then
-				modalBox:CaptureFocus()
+			if VX.modalBox.Parent and VX.modalOpen then
+				VX.modalBox:CaptureFocus()
 				if opts.text then
-					modalBox.CursorPosition = #modalBox.Text + 1
-					modalBox.SelectionStart = 1
+					VX.modalBox.CursorPosition = #VX.modalBox.Text + 1
+					VX.modalBox.SelectionStart = 1
 				end
 			end
 		end)
 	end
 end
 
-confirm = function(titleText, bodyText, onYes)
-	openModal({
+VX.confirm = function(titleText, bodyText, onYes)
+	VX.openModal({
 		title = titleText,
 		body = bodyText,
 		buttons = {
@@ -2322,8 +2323,8 @@ confirm = function(titleText, bodyText, onYes)
 	})
 end
 
-promptBox = function(titleText, placeholder, onYes)
-	openModal({
+VX.promptBox = function(titleText, placeholder, onYes)
+	VX.openModal({
 		title = titleText,
 		body = "Enter a name.",
 		placeholder = placeholder,
@@ -2335,23 +2336,23 @@ promptBox = function(titleText, placeholder, onYes)
 				if type(value) == "string" and value ~= "" then
 					onYes(value)
 				else
-					notify("Enter a name first.", "warning")
+					VX.notify("Enter a name first.", "warning")
 				end
 			end },
 		},
 	})
 end
 
-copyText = function(value, label)
+VX.copyText = function(value, label)
 	local text = tostring(value)
 	if typeof(setclipboard) == "function" then
 		local ok = pcall(setclipboard, text)
 		if ok then
-			notify("Copied " .. label .. ".", "success")
+			VX.notify("Copied " .. label .. ".", "success")
 			return
 		end
 	end
-	openModal({
+	VX.openModal({
 		title = "Copy " .. label,
 		body = "Clipboard write isn't available here. Select the text and copy it.",
 		text = text,
@@ -2359,91 +2360,91 @@ copyText = function(value, label)
 	})
 end
 
-pushRecent = function(id)
-	for index = #G.recents, 1, -1 do
-		if G.recents[index] == id then
-			table.remove(G.recents, index)
+VX.pushRecent = function(id)
+	for index = #VX.G.recents, 1, -1 do
+		if VX.G.recents[index] == id then
+			table.remove(VX.G.recents, index)
 		end
 	end
-	table.insert(G.recents, 1, id)
-	while #G.recents > 8 do
-		table.remove(G.recents)
+	table.insert(VX.G.recents, 1, id)
+	while #VX.G.recents > 8 do
+		table.remove(VX.G.recents)
 	end
-	requestSave()
+	VX.requestSave()
 end
 
-local function rememberQuery(query)
+ function VX.rememberQuery(query)
 	if query == nil or query == "" then
 		return
 	end
-	for index = #recentQueries, 1, -1 do
-		if recentQueries[index] == query then
-			table.remove(recentQueries, index)
+	for index = #VX.recentQueries, 1, -1 do
+		if VX.recentQueries[index] == query then
+			table.remove(VX.recentQueries, index)
 		end
 	end
-	table.insert(recentQueries, 1, query)
-	while #recentQueries > 6 do
-		table.remove(recentQueries)
+	table.insert(VX.recentQueries, 1, query)
+	while #VX.recentQueries > 6 do
+		table.remove(VX.recentQueries)
 	end
 end
 
-local function fillPalette()
-	for _, child in ipairs(paletteList:GetChildren()) do
+ function VX.fillPalette()
+	for _, child in ipairs(VX.paletteList:GetChildren()) do
 		child:Destroy()
 	end
-	make("UIListLayout", { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }, paletteList)
-	table.clear(paletteRows)
-	local query = string.lower(paletteBox.Text or "")
+	VX.make("UIListLayout", { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }, VX.paletteList)
+	table.clear(VX.paletteRows)
+	local query = string.lower(VX.paletteBox.Text or "")
 	local order = 0
 	local function addHeader(text)
 		order += 1
-		local label = make("TextLabel", {
+		local label = VX.make("TextLabel", {
 			LayoutOrder = order,
 			BackgroundTransparency = 1,
 			Size = UDim2.new(1, 0, 0, 18),
 			Font = Enum.Font.GothamBold,
 			TextSize = 11,
 			TextXAlignment = Enum.TextXAlignment.Left,
-			TextColor3 = C.muted,
+			TextColor3 = VX.C.muted,
 			Text = string.upper(text),
-		}, paletteList)
-		table.insert(paletteRows, { header = true, button = label })
+		}, VX.paletteList)
+		table.insert(VX.paletteRows, { header = true, button = label })
 	end
 	local function addFeature(def, score)
 		order += 1
-		local row = make("TextButton", {
+		local row = VX.make("TextButton", {
 			LayoutOrder = order,
 			Size = UDim2.new(1, 0, 0, 48),
-			BackgroundColor3 = C.card,
+			BackgroundColor3 = VX.C.card,
 			Text = "",
 			AutoButtonColor = false,
 			BorderSizePixel = 0,
-		}, paletteList)
-		corner(row, 8)
-		icon(row, def.icon or "info", 16, C.white).Position = UDim2.fromOffset(20, 24)
-		make("TextLabel", {
+		}, VX.paletteList)
+		VX.corner(row, 8)
+		VX.icon(row, def.icon or "info", 16, VX.C.white).Position = UDim2.fromOffset(20, 24)
+		VX.make("TextLabel", {
 			BackgroundTransparency = 1,
 			Position = UDim2.fromOffset(40, 6),
 			Size = UDim2.new(1, -130, 0, 18),
 			Font = Enum.Font.GothamBold,
 			TextSize = 13,
 			TextXAlignment = Enum.TextXAlignment.Left,
-			TextColor3 = C.white,
+			TextColor3 = VX.C.white,
 			Text = def.name,
 			TextTruncate = Enum.TextTruncate.AtEnd,
 		}, row)
-		make("TextLabel", {
+		VX.make("TextLabel", {
 			BackgroundTransparency = 1,
 			Position = UDim2.fromOffset(40, 26),
 			Size = UDim2.new(1, -56, 0, 16),
 			Font = Enum.Font.Gotham,
 			TextSize = 11,
 			TextXAlignment = Enum.TextXAlignment.Left,
-			TextColor3 = C.muted,
+			TextColor3 = VX.C.muted,
 			Text = def.description or "",
 			TextTruncate = Enum.TextTruncate.AtEnd,
 		}, row)
-		make("TextLabel", {
+		VX.make("TextLabel", {
 			BackgroundTransparency = 1,
 			AnchorPoint = Vector2.new(1, 0),
 			Position = UDim2.new(1, -10, 0, 8),
@@ -2451,19 +2452,19 @@ local function fillPalette()
 			Font = Enum.Font.Gotham,
 			TextSize = 11,
 			TextXAlignment = Enum.TextXAlignment.Right,
-			TextColor3 = C.muted,
+			TextColor3 = VX.C.muted,
 			Text = def.category or "",
 		}, row)
 		row.Activated:Connect(function()
-			rememberQuery(paletteBox.Text)
-			useFeature(def.id)
+			VX.rememberQuery(VX.paletteBox.Text)
+			VX.useFeature(def.id)
 		end)
-		table.insert(paletteRows, { feature = def, score = score, button = row })
+		table.insert(VX.paletteRows, { feature = def, score = score, button = row })
 	end
-	if query == "" and #G.recents > 0 then
+	if query == "" and #VX.G.recents > 0 then
 		addHeader("Recent")
-		for index = 1, math.min(4, #G.recents) do
-			local def = features[G.recents[index]]
+		for index = 1, math.min(4, #VX.G.recents) do
+			local def = VX.features[VX.G.recents[index]]
 			if def then
 				addFeature(def, 1)
 			end
@@ -2471,9 +2472,9 @@ local function fillPalette()
 		addHeader("All")
 	end
 	local ranked = {}
-	for _, id in ipairs(featureOrder) do
-		local def = features[id]
-		local value = scoreFeature(query, def)
+	for _, id in ipairs(VX.featureOrder) do
+		local def = VX.features[id]
+		local value = VX.scoreFeature(query, def)
 		if value > 0 then
 			table.insert(ranked, { def = def, score = value })
 		end
@@ -2486,39 +2487,39 @@ local function fillPalette()
 	end)
 	if #ranked == 0 then
 		order += 1
-		make("TextLabel", {
+		VX.make("TextLabel", {
 			LayoutOrder = order,
 			BackgroundTransparency = 1,
 			Size = UDim2.new(1, 0, 0, 48),
 			Font = Enum.Font.Gotham,
 			TextSize = 13,
-			TextColor3 = C.muted,
+			TextColor3 = VX.C.muted,
 			Text = "No matching features",
-		}, paletteList)
+		}, VX.paletteList)
 	end
 	for _, item in ipairs(ranked) do
 		addFeature(item.def, item.score)
 	end
 	local selectable = 0
-	for _, row in ipairs(paletteRows) do
+	for _, row in ipairs(VX.paletteRows) do
 		if row.feature then
 			selectable += 1
-			row.button.BackgroundColor3 = selectable == paletteIndex and C.hover or C.card
+			row.button.BackgroundColor3 = selectable == VX.paletteIndex and VX.C.hover or VX.C.card
 		end
 	end
 	if selectable == 0 then
-		paletteIndex = 1
+		VX.paletteIndex = 1
 	else
-		paletteIndex = math.clamp(paletteIndex, 1, selectable)
+		VX.paletteIndex = math.clamp(VX.paletteIndex, 1, selectable)
 	end
 end
 
-local function selectedPaletteFeature()
+ function VX.selectedPaletteFeature()
 	local index = 0
-	for _, row in ipairs(paletteRows) do
+	for _, row in ipairs(VX.paletteRows) do
 		if row.feature then
 			index += 1
-			if index == paletteIndex then
+			if index == VX.paletteIndex then
 				return row.feature
 			end
 		end
@@ -2526,9 +2527,9 @@ local function selectedPaletteFeature()
 	return nil
 end
 
-local function movePalette(delta)
+ function VX.movePalette(delta)
 	local count = 0
-	for _, row in ipairs(paletteRows) do
+	for _, row in ipairs(VX.paletteRows) do
 		if row.feature then
 			count += 1
 		end
@@ -2536,365 +2537,365 @@ local function movePalette(delta)
 	if count == 0 then
 		return
 	end
-	paletteIndex = math.clamp(paletteIndex + delta, 1, count)
+	VX.paletteIndex = math.clamp(VX.paletteIndex + delta, 1, count)
 	local index = 0
-	for _, row in ipairs(paletteRows) do
+	for _, row in ipairs(VX.paletteRows) do
 		if row.feature then
 			index += 1
-			row.button.BackgroundColor3 = index == paletteIndex and C.hover or C.card
+			row.button.BackgroundColor3 = index == VX.paletteIndex and VX.C.hover or VX.C.card
 		end
 	end
 end
 
-closePalette = function()
-	if not paletteOpen then
+VX.closePalette = function()
+	if not VX.paletteOpen then
 		return
 	end
-	paletteOpen = false
+	VX.paletteOpen = false
 	pcall(function()
-		ContextActionService:UnbindAction("VEXORA_Palette")
+		VX.ContextActionService:UnbindAction("VEXORA_Palette")
 	end)
-	tween(paletteDim, 0.12, { BackgroundTransparency = 1 })
-	local fade = tween(palettePanel, 0.12, { GroupTransparency = 1 })
+	VX.tween(VX.paletteDim, 0.12, { BackgroundTransparency = 1 })
+	local fade = VX.tween(VX.palettePanel, 0.12, { GroupTransparency = 1 })
 	fade.Completed:Connect(function()
-		if not paletteOpen then
-			paletteDim.Visible = false
-			palettePanel.Visible = false
+		if not VX.paletteOpen then
+			VX.paletteDim.Visible = false
+			VX.palettePanel.Visible = false
 		end
 	end)
 end
 
-openPalette = function()
-	if not bootDone then
+VX.openPalette = function()
+	if not VX.bootDone then
 		return
 	end
-	closeDropdown()
-	if modalOpen then
-		closeModal()
+	VX.closeDropdown()
+	if VX.modalOpen then
+		VX.closeModal()
 	end
-	if paletteOpen then
-		paletteBox:CaptureFocus()
+	if VX.paletteOpen then
+		VX.paletteBox:CaptureFocus()
 		return
 	end
-	paletteOpen = true
-	paletteDim.Visible = true
-	paletteDim.BackgroundTransparency = 1
-	palettePanel.Visible = true
-	palettePanel.GroupTransparency = 1
-	paletteBox.Text = ""
-	paletteIndex = 1
-	fillPalette()
-	tween(paletteDim, 0.16, { BackgroundTransparency = 0.4 })
-	tween(palettePanel, 0.16, { GroupTransparency = 0 })
-	ContextActionService:BindActionAtPriority("VEXORA_Palette", function(_, state, input)
+	VX.paletteOpen = true
+	VX.paletteDim.Visible = true
+	VX.paletteDim.BackgroundTransparency = 1
+	VX.palettePanel.Visible = true
+	VX.palettePanel.GroupTransparency = 1
+	VX.paletteBox.Text = ""
+	VX.paletteIndex = 1
+	VX.fillPalette()
+	VX.tween(VX.paletteDim, 0.16, { BackgroundTransparency = 0.4 })
+	VX.tween(VX.palettePanel, 0.16, { GroupTransparency = 0 })
+	VX.ContextActionService:BindActionAtPriority("VEXORA_Palette", function(_, state, input)
 		if state ~= Enum.UserInputState.Begin then
 			return Enum.ContextActionResult.Pass
 		end
 		if input.KeyCode == Enum.KeyCode.Up then
-			movePalette(-1)
+			VX.movePalette(-1)
 			return Enum.ContextActionResult.Sink
 		elseif input.KeyCode == Enum.KeyCode.Down then
-			movePalette(1)
+			VX.movePalette(1)
 			return Enum.ContextActionResult.Sink
 		elseif input.KeyCode == Enum.KeyCode.Return then
-			local def = selectedPaletteFeature()
-			local query = paletteBox.Text
+			local def = VX.selectedPaletteFeature()
+			local query = VX.paletteBox.Text
 			if def then
-				rememberQuery(query)
-				useFeature(def.id)
+				VX.rememberQuery(query)
+				VX.useFeature(def.id)
 			end
 			return Enum.ContextActionResult.Sink
 		elseif input.KeyCode == Enum.KeyCode.Escape then
-			suppressEscape = true
-			closePalette()
+			VX.suppressEscape = true
+			VX.closePalette()
 			task.delay(0.05, function()
-				suppressEscape = false
+				VX.suppressEscape = false
 			end)
 			return Enum.ContextActionResult.Sink
 		end
 		return Enum.ContextActionResult.Pass
 	end, false, 3000, Enum.KeyCode.Up, Enum.KeyCode.Down, Enum.KeyCode.Return, Enum.KeyCode.Escape)
 	task.defer(function()
-		if paletteOpen then
-			paletteBox:CaptureFocus()
+		if VX.paletteOpen then
+			VX.paletteBox:CaptureFocus()
 		end
 	end)
 end
 
-paletteBox:GetPropertyChangedSignal("Text"):Connect(function()
-	if paletteOpen then
-		paletteIndex = 1
-		fillPalette()
+VX.paletteBox:GetPropertyChangedSignal("Text"):Connect(function()
+	if VX.paletteOpen then
+		VX.paletteIndex = 1
+		VX.fillPalette()
 	end
 end)
-paletteDim.Activated:Connect(function()
-	closePalette()
+VX.paletteDim.Activated:Connect(function()
+	VX.closePalette()
 end)
 
-ensureWindow = function()
-	if windowOpen then
+VX.ensureWindow = function()
+	if VX.windowOpen then
 		return
 	end
-	windowOpen = true
-	window.Visible = true
-	window.Position = UDim2.new(0.5, 0, 0.5, 12)
-	tween(window, 0.26, {
-		GroupTransparency = shownTransparency(),
+	VX.windowOpen = true
+	VX.window.Visible = true
+	VX.window.Position = UDim2.new(0.5, 0, 0.5, 12)
+	VX.tween(VX.window, 0.26, {
+		GroupTransparency = VX.shownTransparency(),
 		Position = UDim2.fromScale(0.5, 0.5),
 	})
 end
 
-toggleWindow = function()
-	if not bootDone then
+VX.toggleWindow = function()
+	if not VX.bootDone then
 		return
 	end
-	if windowOpen then
-		windowOpen = false
-		local fade = tween(window, 0.18, { GroupTransparency = 1 })
+	if VX.windowOpen then
+		VX.windowOpen = false
+		local fade = VX.tween(VX.window, 0.18, { GroupTransparency = 1 })
 		fade.Completed:Connect(function()
-			if not windowOpen and window.Parent then
-				window.Visible = false
+			if not VX.windowOpen and VX.window.Parent then
+				VX.window.Visible = false
 			end
 		end)
 	else
-		ensureWindow()
+		VX.ensureWindow()
 	end
 end
 
-navigate = function(page, tab, force)
+VX.navigate = function(page, tab, force)
 	if page == "Universal" then
-		tab = tab or currentTab or "Camera"
+		tab = tab or VX.currentTab or "Camera"
 	else
 		tab = nil
 	end
-	if not force and page == currentPage and tab == currentTab then
-		refreshNav()
-		layoutBody()
-		refreshHeader()
+	if not force and page == VX.currentPage and tab == VX.currentTab then
+		VX.refreshNav()
+		VX.layoutBody()
+		VX.refreshHeader()
 		return
 	end
-	navToken += 1
-	local token = navToken
-	ensureWindow()
-	local fade = tween(content, 0.12, { GroupTransparency = 1 })
+	VX.navToken += 1
+	local token = VX.navToken
+	VX.ensureWindow()
+	local fade = VX.tween(VX.content, 0.12, { GroupTransparency = 1 })
 	pcall(function()
 		fade.Completed:Wait()
 	end)
-	if token ~= navToken or not alive then
+	if token ~= VX.navToken or not VX.alive then
 		return
 	end
-	currentPage = page
+	VX.currentPage = page
 	if tab then
-		currentTab = tab
+		VX.currentTab = tab
 	end
-	closeDropdown()
-	refreshHeader()
-	refreshNav()
-	layoutBody()
+	VX.closeDropdown()
+	VX.refreshHeader()
+	VX.refreshNav()
+	VX.layoutBody()
 	local ok, err = xpcall(function()
-		renderPage()
+		VX.renderPage()
 	end, debug.traceback)
 	if not ok then
 		warn("[VEXORA] Page failed: " .. tostring(err))
-		notify("That page hit an error. The details are in the output.", "error")
+		VX.notify("That page hit an error. The details are in the output.", "error")
 	end
-	tween(content, 0.18, { GroupTransparency = 0 })
+	VX.tween(VX.content, 0.18, { GroupTransparency = 0 })
 end
 
-useFeature = function(id)
-	local def = features[id]
+VX.useFeature = function(id)
+	local def = VX.features[id]
 	if not def then
-		notify("That feature is missing.", "error")
+		VX.notify("That feature is missing.", "error")
 		return
 	end
-	pushRecent(id)
-	closePalette()
+	VX.pushRecent(id)
+	VX.closePalette()
 	if def.opens == false then
 		def.run()
 		return
 	end
-	ensureWindow()
+	VX.ensureWindow()
 	def.run()
 end
 
-local function presetNames()
+ function VX.presetNames()
 	local list = {}
-	for name in pairs(G.presets) do
+	for name in pairs(VX.G.presets) do
 		table.insert(list, name)
 	end
 	table.sort(list)
 	return list
 end
 
-local function applyCrosshairPreset(preset, label)
-	P.crosshair = deepCopy(preset)
-	applyCrosshair()
-	requestSave()
-	notify(label .. " crosshair applied on your screen.", "success")
+ function VX.applyCrosshairPreset(preset, label)
+	VX.P.crosshair = VX.deepCopy(preset)
+	VX.applyCrosshair()
+	VX.requestSave()
+	VX.notify(label .. " crosshair applied on your screen.", "success")
 end
 
-local BUILTIN_PRESETS = {
+ VX.BUILTIN_PRESETS = {
 	Precise = { enabled = true, style = "Cross", size = 6, thickness = 1, gap = 3, opacity = 1, color = "White" },
 	Dot = { enabled = true, style = "Dot", size = 4, thickness = 2, gap = 0, opacity = 1, color = "White" },
 	Open = { enabled = true, style = "Cross", size = 12, thickness = 2, gap = 7, opacity = 1, color = "Cyan" },
 	Minimal = { enabled = true, style = "Minimal", size = 6, thickness = 1, gap = 2, opacity = 0.9, color = "White" },
 }
 
-local function savePreset()
-	promptBox("Save crosshair preset", "Name", function(name)
+ function VX.savePreset()
+	VX.promptBox("Save crosshair preset", "Name", function(name)
 		if #name > 24 then
-			notify("Use 24 characters or fewer.", "warning")
+			VX.notify("Use 24 characters or fewer.", "warning")
 			return
 		end
-		G.presets[name] = deepCopy(P.crosshair)
-		requestSave()
-		notify("Preset \"" .. name .. "\" saved for this session" .. (storageMode == "file" and " and file." or "."), "success")
-		if currentPage == "Universal" and currentTab == "Crosshair" then
-			renderPage()
+		VX.G.presets[name] = VX.deepCopy(VX.P.crosshair)
+		VX.requestSave()
+		VX.notify("Preset \"" .. name .. "\" saved for this session" .. (VX.storageMode == "file" and " and file." or "."), "success")
+		if VX.currentPage == "Universal" and VX.currentTab == "Crosshair" then
+			VX.renderPage()
 		end
 	end)
 end
 
-local function renderHome()
-	local profile = make("Frame", {
-		LayoutOrder = lay(scroll),
-		BackgroundColor3 = C.card,
+ function VX.renderHome()
+	local profile = VX.make("Frame", {
+		LayoutOrder = VX.lay(VX.scroll),
+		BackgroundColor3 = VX.C.card,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, 108),
-	}, scroll)
-	corner(profile, 12)
-	stroke(profile, 0.5)
-	local avatar = make("ImageLabel", {
+	}, VX.scroll)
+	VX.corner(profile, 12)
+	VX.stroke(profile, 0.5)
+	local avatar = VX.make("ImageLabel", {
 		Position = UDim2.fromOffset(14, 22),
 		Size = UDim2.fromOffset(64, 64),
-		BackgroundColor3 = C.hover,
+		BackgroundColor3 = VX.C.hover,
 		BorderSizePixel = 0,
 	}, profile)
-	corner(avatar, 12)
+	VX.corner(avatar, 12)
 	task.spawn(function()
 		local ok, image = pcall(function()
-			return Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size150x150)
+			return VX.Players:GetUserThumbnailAsync(VX.player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size150x150)
 		end)
 		if ok and avatar.Parent and type(image) == "string" then
 			avatar.Image = image
 		end
 	end)
-	make("TextLabel", {
+	VX.make("TextLabel", {
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(94, 16),
 		Size = UDim2.new(1, -110, 0, 22),
 		Font = Enum.Font.GothamBold,
 		TextSize = 18,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		TextColor3 = C.white,
-		Text = player.DisplayName,
+		TextColor3 = VX.C.white,
+		Text = VX.player.DisplayName,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 	}, profile)
-	make("TextLabel", {
+	VX.make("TextLabel", {
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(94, 38),
 		Size = UDim2.new(1, -110, 0, 16),
 		Font = Enum.Font.Gotham,
 		TextSize = 12,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		TextColor3 = C.muted,
-		Text = "@" .. player.Name,
+		TextColor3 = VX.C.muted,
+		Text = "@" .. VX.player.Name,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 	}, profile)
-	local experience = make("TextLabel", {
+	local experience = VX.make("TextLabel", {
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(94, 58),
 		Size = UDim2.new(1, -110, 0, 16),
 		Font = Enum.Font.Gotham,
 		TextSize = 12,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		TextColor3 = C.muted,
-		Text = "Experience    " .. experienceName,
+		TextColor3 = VX.C.muted,
+		Text = "Experience    " .. VX.experienceName,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 	}, profile)
-	watch("experience", experience)
-	local sessionLabel = make("TextLabel", {
+	VX.watch("experience", experience)
+	local sessionLabel = VX.make("TextLabel", {
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(94, 76),
 		Size = UDim2.new(1, -110, 0, 16),
 		Font = Enum.Font.Gotham,
 		TextSize = 12,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		TextColor3 = C.white,
+		TextColor3 = VX.C.white,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
 	}, profile)
 	local function profileLine()
-		local selected = gameById(selectedId)
-		return (selected and selected.name or "No profile") .. "    ·    Session " .. formatTime(os.clock() - sessionStart)
+		local selected = VX.gameById(VX.selectedId)
+		return (selected and selected.name or "No profile") .. "    ·    Session " .. VX.formatTime(os.clock() - VX.sessionStart)
 	end
 	sessionLabel.Text = profileLine()
-	watch("profileLine", sessionLabel)
+	VX.watch("profileLine", sessionLabel)
 
-	local columns = make("Frame", {
-		LayoutOrder = lay(scroll),
+	local columns = VX.make("Frame", {
+		LayoutOrder = VX.lay(VX.scroll),
 		BackgroundTransparency = 1,
 		Size = UDim2.new(1, 0, 0, 360),
-	}, scroll)
+	}, VX.scroll)
 	local function column(x, width)
-		local frame = make("Frame", {
+		local frame = VX.make("Frame", {
 			Position = UDim2.new(x, x == 0 and 0 or 4, 0, 0),
 			Size = UDim2.new(width, x == 0 and -4 or -4, 1, 0),
-			BackgroundColor3 = C.card,
+			BackgroundColor3 = VX.C.card,
 			BorderSizePixel = 0,
 		}, columns)
-		corner(frame, 12)
-		stroke(frame, 0.5)
-		make("UIPadding", {
+		VX.corner(frame, 12)
+		VX.stroke(frame, 0.5)
+		VX.make("UIPadding", {
 			PaddingTop = UDim.new(0, 12),
 			PaddingBottom = UDim.new(0, 12),
 			PaddingLeft = UDim.new(0, 12),
 			PaddingRight = UDim.new(0, 12),
 		}, frame)
-		make("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, frame)
+		VX.make("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, frame)
 		frame:SetAttribute("Lay", 0)
 		return frame
 	end
 	local server = column(0, 0.5)
 	local environment = column(0.5, 0.5)
-	textLabel(server, "Server", 15, C.white, true, 20)
-	textLabel(server, "This server, not your session clock", 11, C.muted, false, 16)
-	stat(server, string.format("Players    %d / %d", #Players:GetPlayers(), Players.MaxPlayers), "players")
-	stat(server, "Place ID    " .. tostring(game.PlaceId), nil)
-	stat(server, game.JobId == "" and "Job ID    Empty in this session" or ("Job ID    " .. string.sub(game.JobId, 1, 16)), "job")
-	stat(server, fpsValue and string.format("FPS    %d", math.floor(fpsValue + 0.5)) or "FPS    …", "fps")
-	stat(server, pingText(), "ping")
-	stat(server, "Session    " .. formatTime(os.clock() - sessionStart), "session")
-	textLabel(server, "Server uptime    Not available on the client", 12, C.muted, false, 18)
-	button(server, "Copy place ID", function()
-		copyText(game.PlaceId, "place ID")
+	VX.textLabel(server, "Server", 15, VX.C.white, true, 20)
+	VX.textLabel(server, "This server, not your session clock", 11, VX.C.muted, false, 16)
+	VX.stat(server, string.format("Players    %d / %d", #VX.Players:GetPlayers(), VX.Players.MaxPlayers), "players")
+	VX.stat(server, "Place ID    " .. tostring(game.PlaceId), nil)
+	VX.stat(server, game.JobId == "" and "Job ID    Empty in this session" or ("Job ID    " .. string.sub(game.JobId, 1, 16)), "job")
+	VX.stat(server, VX.fpsValue and string.format("FPS    %d", math.floor(VX.fpsValue + 0.5)) or "FPS    …", "fps")
+	VX.stat(server, VX.pingText(), "ping")
+	VX.stat(server, "Session    " .. VX.formatTime(os.clock() - VX.sessionStart), "session")
+	VX.textLabel(server, "Server uptime    Not available on the client", 12, VX.C.muted, false, 18)
+	VX.button(server, "Copy place ID", function()
+		VX.copyText(game.PlaceId, "place ID")
 	end)
-	button(server, "Copy job ID", function()
+	VX.button(server, "Copy job ID", function()
 		if game.JobId == "" then
-			notify("This session has no Job ID to copy.", "warning")
+			VX.notify("This session has no Job ID to copy.", "warning")
 			return
 		end
-		copyText(game.JobId, "job ID")
+		VX.copyText(game.JobId, "job ID")
 	end)
 
-	textLabel(environment, "Environment", 15, C.white, true, 20)
-	textLabel(environment, "This client", 11, C.muted, false, 16)
-	stat(environment, "Platform    " .. platformText(), nil)
-	stat(environment, "Input    " .. tostring(lastInput.Name), "input")
-	stat(environment, "Resolution    " .. resolutionText(), "res")
-	stat(environment, "Field of view    " .. fovText(), "fov")
-	stat(environment, memoryText(), "mem")
-	stat(environment, "Graphics    " .. graphicsText(), "graphics")
-	stat(environment, "Clipboard    " .. (typeof(setclipboard) == "function" and "Write available" or "Manual copy"), nil)
-	stat(environment, "Storage    " .. (storageMode == "file" and "Local file" or "This session"), "storage")
-	stat(environment, "Menu    Ready", nil)
+	VX.textLabel(environment, "Environment", 15, VX.C.white, true, 20)
+	VX.textLabel(environment, "This client", 11, VX.C.muted, false, 16)
+	VX.stat(environment, "Platform    " .. VX.platformText(), nil)
+	VX.stat(environment, "Input    " .. tostring(VX.lastInput.Name), "input")
+	VX.stat(environment, "Resolution    " .. VX.resolutionText(), "res")
+	VX.stat(environment, "Field of view    " .. VX.fovText(), "fov")
+	VX.stat(environment, VX.memoryText(), "mem")
+	VX.stat(environment, "Graphics    " .. VX.graphicsText(), "graphics")
+	VX.stat(environment, "Clipboard    " .. (typeof(setclipboard) == "function" and "Write available" or "Manual copy"), nil)
+	VX.stat(environment, "Storage    " .. (VX.storageMode == "file" and "Local file" or "This session"), "storage")
+	VX.stat(environment, "Menu    Ready", nil)
 
-	local actions = make("Frame", {
-		LayoutOrder = lay(scroll),
+	local actions = VX.make("Frame", {
+		LayoutOrder = VX.lay(VX.scroll),
 		BackgroundTransparency = 1,
 		Size = UDim2.new(1, 0, 0, 80),
-	}, scroll)
-	local actionGrid = make("UIGridLayout", {
+	}, VX.scroll)
+	local actionGrid = VX.make("UIGridLayout", {
 		CellPadding = UDim2.fromOffset(8, 8),
 		CellSize = UDim2.new(0.333, -8, 0, 36),
 		SortOrder = Enum.SortOrder.LayoutOrder,
@@ -2908,8 +2909,8 @@ local function renderHome()
 		{ "Minimise", "minimise" },
 	}
 	for index, item in ipairs(actionList) do
-		button(actions, item[1], function()
-			useFeature(item[2])
+		VX.button(actions, item[1], function()
+			VX.useFeature(item[2])
 		end, {
 			order = index,
 			size = UDim2.fromScale(1, 1),
@@ -2917,70 +2918,70 @@ local function renderHome()
 	end
 	actionGrid.Parent = actions
 
-	local favouriteCard = stack(scroll, 4)
-	textLabel(favouriteCard, "Favourites", 15, C.white, true, 20)
+	local favouriteCard = VX.stack(VX.scroll, 4)
+	VX.textLabel(favouriteCard, "Favourites", 15, VX.C.white, true, 20)
 	local anyFavourite = false
-	for _, id in ipairs(featureOrder) do
-		if G.favorites[id] and features[id] then
+	for _, id in ipairs(VX.featureOrder) do
+		if VX.G.favorites[id] and VX.features[id] then
 			anyFavourite = true
-			button(favouriteCard, features[id].name, function()
-				useFeature(id)
+			VX.button(favouriteCard, VX.features[id].name, function()
+				VX.useFeature(id)
 			end)
 		end
 	end
 	if not anyFavourite then
-		note(favouriteCard, "Star a tool and it will show up here.")
+		VX.note(favouriteCard, "Star a tool and it will show up here.")
 	end
 end
 
-local function renderGames()
-	textLabel(scroll, "Which game would you like to use VEXORA with?", 20, C.white, true, 28)
-	note(scroll, "You are in " .. experienceName .. ". Pick a profile. A profile only changes this menu and your local client settings.")
+ function VX.renderGames()
+	VX.textLabel(VX.scroll, "Which game would you like to use VEXORA with?", 20, VX.C.white, true, 28)
+	VX.note(VX.scroll, "You are in " .. VX.experienceName .. ". Pick a profile. A profile only changes this menu and your local client settings.")
 	local row = nil
-	for index, entry in ipairs(GAMES) do
+	for index, entry in ipairs(VX.GAMES) do
 		if (index - 1) % 2 == 0 then
-			row = make("Frame", {
-				LayoutOrder = lay(scroll),
+			row = VX.make("Frame", {
+				LayoutOrder = VX.lay(VX.scroll),
 				BackgroundTransparency = 1,
 				Size = UDim2.new(1, 0, 0, 292),
-			}, scroll)
+			}, VX.scroll)
 		end
 		local column = (index - 1) % 2
-		local card = make("Frame", {
+		local card = VX.make("Frame", {
 			Position = UDim2.new(column * 0.5, column == 0 and 0 or 4, 0, 0),
 			Size = UDim2.new(0.5, -4, 1, 0),
-			BackgroundColor3 = C.card,
+			BackgroundColor3 = VX.C.card,
 			BorderSizePixel = 0,
 		}, row)
-		corner(card, 12)
-		local outline = stroke(card, selectedId == entry.id and 0 or 0.45, selectedId == entry.id and accentColor() or C.border)
-		if selectedId == entry.id then
-			trackAccent(outline, "Color")
+		VX.corner(card, 12)
+		local outline = VX.stroke(card, VX.selectedId == entry.id and 0 or 0.45, VX.selectedId == entry.id and VX.accentColor() or VX.C.border)
+		if VX.selectedId == entry.id then
+			VX.trackAccent(outline, "Color")
 		end
 		card.MouseEnter:Connect(function()
-			tween(card, 0.14, { BackgroundColor3 = C.hover })
+			VX.tween(card, 0.14, { BackgroundColor3 = VX.C.hover })
 		end)
 		card.MouseLeave:Connect(function()
-			tween(card, 0.14, { BackgroundColor3 = C.card })
+			VX.tween(card, 0.14, { BackgroundColor3 = VX.C.card })
 		end)
-		local shot = make("Frame", {
+		local shot = VX.make("Frame", {
 			Position = UDim2.fromOffset(12, 12),
 			Size = UDim2.new(1, -24, 0, 140),
-			BackgroundColor3 = C.hover,
+			BackgroundColor3 = VX.C.hover,
 			BorderSizePixel = 0,
 			ClipsDescendants = true,
 		}, card)
-		corner(shot, 10)
-		local mark = make("TextLabel", {
+		VX.corner(shot, 10)
+		local mark = VX.make("TextLabel", {
 			BackgroundTransparency = 1,
 			Size = UDim2.fromScale(1, 1),
 			Font = Enum.Font.GothamBold,
 			TextSize = 42,
-			TextColor3 = C.white,
+			TextColor3 = VX.C.white,
 			Text = "V",
 		}, shot)
 		if entry.universeId then
-			local image = make("ImageLabel", {
+			local image = VX.make("ImageLabel", {
 				BackgroundTransparency = 1,
 				Size = UDim2.fromScale(1, 1),
 				ScaleType = Enum.ScaleType.Crop,
@@ -2988,54 +2989,54 @@ local function renderGames()
 				ZIndex = 2,
 				Image = "rbxthumb://type=GameThumbnail&id=" .. tostring(entry.universeId) .. "&w=768&h=432",
 			}, shot)
-			local badgeIcon = make("ImageLabel", {
-				BackgroundColor3 = C.panel,
+			local badgeIcon = VX.make("ImageLabel", {
+				BackgroundColor3 = VX.C.panel,
 				Position = UDim2.new(0, 8, 1, -36),
 				Size = UDim2.fromOffset(28, 28),
 				ScaleType = Enum.ScaleType.Crop,
 				ZIndex = 3,
 				Image = "rbxthumb://type=GameIcon&id=" .. tostring(entry.universeId) .. "&w=150&h=150",
 			}, shot)
-			corner(badgeIcon, 8)
+			VX.corner(badgeIcon, 8)
 			image.Parent = shot
 			mark.ZIndex = 1
 		else
 			for gx = 0, 8 do
-				make("Frame", {
+				VX.make("Frame", {
 					Position = UDim2.new(gx / 8, 0, 0, 0),
 					Size = UDim2.new(0, 1, 1, 0),
-					BackgroundColor3 = C.white,
+					BackgroundColor3 = VX.C.white,
 					BackgroundTransparency = 0.9,
 					BorderSizePixel = 0,
 				}, shot)
 			end
 			mark.Text = "V"
 		end
-		if entry.id == "urban" and inUrban() then
-			local badge = make("TextLabel", {
+		if entry.id == "urban" and VX.inUrban() then
+			local badge = VX.make("TextLabel", {
 				Position = UDim2.fromOffset(8, 8),
 				Size = UDim2.fromOffset(108, 20),
-				BackgroundColor3 = C.bg,
+				BackgroundColor3 = VX.C.bg,
 				Font = Enum.Font.GothamBold,
 				TextSize = 11,
-				TextColor3 = C.green,
+				TextColor3 = VX.C.green,
 				Text = "Recommended",
 				ZIndex = 4,
 				BorderSizePixel = 0,
 			}, shot)
-			corner(badge, 6)
+			VX.corner(badge, 6)
 		end
-		make("TextLabel", {
+		VX.make("TextLabel", {
 			BackgroundTransparency = 1,
 			Position = UDim2.fromOffset(12, 160),
 			Size = UDim2.new(1, -24, 0, 22),
 			Font = Enum.Font.GothamBold,
 			TextSize = 16,
 			TextXAlignment = Enum.TextXAlignment.Left,
-			TextColor3 = C.white,
+			TextColor3 = VX.C.white,
 			Text = entry.name,
 		}, card)
-		make("TextLabel", {
+		VX.make("TextLabel", {
 			BackgroundTransparency = 1,
 			Position = UDim2.fromOffset(12, 184),
 			Size = UDim2.new(1, -24, 0, 32),
@@ -3044,21 +3045,21 @@ local function renderGames()
 			TextWrapped = true,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			TextYAlignment = Enum.TextYAlignment.Top,
-			TextColor3 = C.muted,
+			TextColor3 = VX.C.muted,
 			Text = entry.blurb,
 		}, card)
 		local statusText = "Ready in this experience"
-		local statusColor = C.cyan
+		local statusColor = VX.C.cyan
 		if entry.placeId then
 			if game.PlaceId == entry.placeId then
 				statusText = "In this game"
-				statusColor = C.green
+				statusColor = VX.C.green
 			else
 				statusText = "Not in this game · local profile only"
-				statusColor = C.muted
+				statusColor = VX.C.muted
 			end
 		end
-		make("TextLabel", {
+		VX.make("TextLabel", {
 			BackgroundTransparency = 1,
 			Position = UDim2.fromOffset(12, 218),
 			Size = UDim2.new(1, -24, 0, 16),
@@ -3069,12 +3070,12 @@ local function renderGames()
 			Text = statusText,
 			TextTruncate = Enum.TextTruncate.AtEnd,
 		}, card)
-		button(card, selectedId == entry.id and "Selected" or "Use this profile", function()
-			selectedId = entry.id
-			G.perGame[tostring(game.PlaceId)] = entry.id
-			requestSave()
-			notify(entry.name .. " is the active profile.", "success")
-			navigate("Home", nil, true)
+		VX.button(card, VX.selectedId == entry.id and "Selected" or "Use this profile", function()
+			VX.selectedId = entry.id
+			VX.G.perGame[tostring(game.PlaceId)] = entry.id
+			VX.requestSave()
+			VX.notify(entry.name .. " is the active profile.", "success")
+			VX.navigate("Home", nil, true)
 		end, {
 			primary = true,
 			position = UDim2.fromOffset(12, 244),
@@ -3083,294 +3084,294 @@ local function renderGames()
 	end
 end
 
-local function renderCamera()
-	textLabel(scroll, "Camera", 20, C.white, true, 26)
-	note(scroll, "These change your camera only. The game can set its own field of view again afterwards.")
-	local card = stack(scroll, 8)
-	local currentFov = P.fov or (workspace.CurrentCamera and workspace.CurrentCamera.FieldOfView) or originalFOV
-	slider(card, "Field of view", 50, 110, currentFov, 1, "fov", function(value, final)
-		P.fov = value
-		applyFov(final and P.smoothFov)
-		requestSave()
+ function VX.renderCamera()
+	VX.textLabel(VX.scroll, "Camera", 20, VX.C.white, true, 26)
+	VX.note(VX.scroll, "These change your camera only. The game can set its own field of view again afterwards.")
+	local card = VX.stack(VX.scroll, 8)
+	local currentFov = VX.P.fov or (workspace.CurrentCamera and workspace.CurrentCamera.FieldOfView) or VX.originalFOV
+	VX.slider(card, "Field of view", 50, 110, currentFov, 1, "fov", function(value, final)
+		VX.P.fov = value
+		VX.applyFov(final and VX.P.smoothFov)
+		VX.requestSave()
 	end)
-	toggle(card, "Smooth field-of-view changes", P.smoothFov, "smooth-fov", function(on)
-		P.smoothFov = on
-		requestSave()
+	VX.toggle(card, "Smooth field-of-view changes", VX.P.smoothFov, "smooth-fov", function(on)
+		VX.P.smoothFov = on
+		VX.requestSave()
 	end)
-	textLabel(card, "Camera type    " .. tostring(workspace.CurrentCamera and workspace.CurrentCamera.CameraType.Name or "Unavailable"), 13, C.white, false, 18)
-	note(card, "Camera type stays with the game. VEXORA does not take over the camera.")
-	button(card, "Restore original field of view", function()
-		useFeature("fov-reset")
+	VX.textLabel(card, "Camera type    " .. tostring(workspace.CurrentCamera and workspace.CurrentCamera.CameraType.Name or "Unavailable"), 13, VX.C.white, false, 18)
+	VX.note(card, "Camera type stays with the game. VEXORA does not take over the camera.")
+	VX.button(card, "Restore original field of view", function()
+		VX.useFeature("fov-reset")
 	end)
 end
 
-local function renderInterface()
-	textLabel(scroll, "Interface", 20, C.white, true, 26)
-	note(scroll, "Appearance of this menu. Reduced motion turns off the travelling pulses and shortens transitions.")
-	local card = stack(scroll, 8)
-	slider(card, "UI scale", 0.85, 1.15, P.uiScale, 0.01, "ui-scale", function(value)
-		P.uiScale = value
-		applyChrome()
-		requestSave()
+ function VX.renderInterface()
+	VX.textLabel(VX.scroll, "Interface", 20, VX.C.white, true, 26)
+	VX.note(VX.scroll, "Appearance of this menu. Reduced motion turns off the travelling pulses and shortens transitions.")
+	local card = VX.stack(VX.scroll, 8)
+	VX.slider(card, "UI scale", 0.85, 1.15, VX.P.uiScale, 0.01, "ui-scale", function(value)
+		VX.P.uiScale = value
+		VX.applyChrome()
+		VX.requestSave()
 	end)
-	slider(card, "Opacity", 0.7, 1, P.opacity, 0.01, "opacity", function(value)
-		P.opacity = value
-		applyChrome()
-		requestSave()
+	VX.slider(card, "Opacity", 0.7, 1, VX.P.opacity, 0.01, "opacity", function(value)
+		VX.P.opacity = value
+		VX.applyChrome()
+		VX.requestSave()
 	end)
-	slider(card, "Animation intensity", 0.6, 1.4, P.anim, 0.05, "anim", function(value)
-		P.anim = value
-		requestSave()
+	VX.slider(card, "Animation intensity", 0.6, 1.4, VX.P.anim, 0.05, "anim", function(value)
+		VX.P.anim = value
+		VX.requestSave()
 	end)
-	dropdown(card, "Accent", { "Cyan", "Violet", "Green", "White" }, P.accent, function(choice)
-		P.accent = choice
-		applyAccent()
-		refreshNav()
-		requestSave()
-		renderPage()
+	VX.dropdown(card, "Accent", { "Cyan", "Violet", "Green", "White" }, VX.P.accent, function(choice)
+		VX.P.accent = choice
+		VX.applyAccent()
+		VX.refreshNav()
+		VX.requestSave()
+		VX.renderPage()
 	end)
-	toggle(card, "Grid background", P.grid, "grid", function(on)
-		P.grid = on
-		applyChrome()
-		requestSave()
+	VX.toggle(card, "Grid background", VX.P.grid, "grid", function(on)
+		VX.P.grid = on
+		VX.applyChrome()
+		VX.requestSave()
 	end)
-	toggle(card, "RGB pulses", P.pulses, "pulses", function(on)
-		P.pulses = on
-		applyChrome()
-		requestSave()
+	VX.toggle(card, "RGB pulses", VX.P.pulses, "pulses", function(on)
+		VX.P.pulses = on
+		VX.applyChrome()
+		VX.requestSave()
 	end)
-	toggle(card, "Reduced motion", P.reducedMotion, "motion", function(on)
-		P.reducedMotion = on
-		applyChrome()
-		requestSave()
+	VX.toggle(card, "Reduced motion", VX.P.reducedMotion, "motion", function(on)
+		VX.P.reducedMotion = on
+		VX.applyChrome()
+		VX.requestSave()
 	end)
-	toggle(card, "Notifications", P.notifications, "notifications", function(on)
-		P.notifications = on
-		requestSave()
+	VX.toggle(card, "Notifications", VX.P.notifications, "notifications", function(on)
+		VX.P.notifications = on
+		VX.requestSave()
 		if on then
-			notify("Notifications are on.", "info")
+			VX.notify("Notifications are on.", "info")
 		end
 	end)
-	toggle(card, "Sidebar", G.sidebar, nil, function(on)
-		G.sidebar = on
-		if not G.sidebar and not G.dock then
-			G.dock = true
-			notify("The dock stays on so navigation is still reachable.", "warning")
+	VX.toggle(card, "Sidebar", VX.G.sidebar, nil, function(on)
+		VX.G.sidebar = on
+		if not VX.G.sidebar and not VX.G.dock then
+			VX.G.dock = true
+			VX.notify("The dock stays on so navigation is still reachable.", "warning")
 		end
-		applyChrome()
-		requestSave()
-		renderPage()
+		VX.applyChrome()
+		VX.requestSave()
+		VX.renderPage()
 	end)
-	toggle(card, "Bottom dock", G.dock, nil, function(on)
-		G.dock = on
-		if not G.sidebar and not G.dock then
-			G.sidebar = true
-			notify("The sidebar stays on so navigation is still reachable.", "warning")
+	VX.toggle(card, "Bottom dock", VX.G.dock, nil, function(on)
+		VX.G.dock = on
+		if not VX.G.sidebar and not VX.G.dock then
+			VX.G.sidebar = true
+			VX.notify("The sidebar stays on so navigation is still reachable.", "warning")
 		end
-		applyChrome()
-		requestSave()
-		renderPage()
+		VX.applyChrome()
+		VX.requestSave()
+		VX.renderPage()
 	end)
-	toggle(card, "Performance HUD", P.hud.visible, "toggle-hud", function(on)
-		P.hud.visible = on
-		applyHud()
-		requestSave()
+	VX.toggle(card, "Performance HUD", VX.P.hud.visible, "toggle-hud", function(on)
+		VX.P.hud.visible = on
+		VX.applyHud()
+		VX.requestSave()
 	end)
-	button(card, "Reset HUD position", function()
-		useFeature("reset-hud")
+	VX.button(card, "Reset HUD position", function()
+		VX.useFeature("reset-hud")
 	end)
-	button(card, "Reset menu position", function()
-		useFeature("reset-position")
+	VX.button(card, "Reset menu position", function()
+		VX.useFeature("reset-position")
 	end)
 end
 
-local function renderCrosshair()
-	textLabel(scroll, "Crosshair", 20, C.white, true, 26)
-	note(scroll, "Drawn on your screen only. It does not aim, shoot, or read other players.")
-	local card = stack(scroll, 8)
-	toggle(card, "Show crosshair", P.crosshair.enabled, "crosshair", function(on)
-		P.crosshair.enabled = on
-		applyCrosshair()
-		requestSave()
+ function VX.renderCrosshair()
+	VX.textLabel(VX.scroll, "Crosshair", 20, VX.C.white, true, 26)
+	VX.note(VX.scroll, "Drawn on your screen only. It does not aim, shoot, or read other players.")
+	local card = VX.stack(VX.scroll, 8)
+	VX.toggle(card, "Show crosshair", VX.P.crosshair.enabled, "crosshair", function(on)
+		VX.P.crosshair.enabled = on
+		VX.applyCrosshair()
+		VX.requestSave()
 	end)
-	dropdown(card, "Style", { "Cross", "Dot", "Circle", "Minimal" }, P.crosshair.style, function(choice)
-		P.crosshair.style = choice
-		P.crosshair.enabled = true
-		applyCrosshair()
-		requestSave()
-		renderPage()
+	VX.dropdown(card, "Style", { "Cross", "Dot", "Circle", "Minimal" }, VX.P.crosshair.style, function(choice)
+		VX.P.crosshair.style = choice
+		VX.P.crosshair.enabled = true
+		VX.applyCrosshair()
+		VX.requestSave()
+		VX.renderPage()
 	end)
-	dropdown(card, "Colour", COLOR_CHOICES, P.crosshair.color, function(choice)
-		P.crosshair.color = choice
-		applyCrosshair()
-		requestSave()
+	VX.dropdown(card, "Colour", VX.COLOR_CHOICES, VX.P.crosshair.color, function(choice)
+		VX.P.crosshair.color = choice
+		VX.applyCrosshair()
+		VX.requestSave()
 	end)
-	slider(card, "Size", 2, 18, P.crosshair.size, 1, nil, function(value)
-		P.crosshair.size = value
-		P.crosshair.enabled = true
-		applyCrosshair()
-		requestSave()
+	VX.slider(card, "Size", 2, 18, VX.P.crosshair.size, 1, nil, function(value)
+		VX.P.crosshair.size = value
+		VX.P.crosshair.enabled = true
+		VX.applyCrosshair()
+		VX.requestSave()
 	end)
-	slider(card, "Thickness", 1, 6, P.crosshair.thickness, 1, nil, function(value)
-		P.crosshair.thickness = value
-		applyCrosshair()
-		requestSave()
+	VX.slider(card, "Thickness", 1, 6, VX.P.crosshair.thickness, 1, nil, function(value)
+		VX.P.crosshair.thickness = value
+		VX.applyCrosshair()
+		VX.requestSave()
 	end)
-	slider(card, "Gap", 0, 16, P.crosshair.gap, 1, nil, function(value)
-		P.crosshair.gap = value
-		applyCrosshair()
-		requestSave()
+	VX.slider(card, "Gap", 0, 16, VX.P.crosshair.gap, 1, nil, function(value)
+		VX.P.crosshair.gap = value
+		VX.applyCrosshair()
+		VX.requestSave()
 	end)
-	slider(card, "Opacity", 0.25, 1, P.crosshair.opacity, 0.05, nil, function(value)
-		P.crosshair.opacity = value
-		applyCrosshair()
-		requestSave()
+	VX.slider(card, "Opacity", 0.25, 1, VX.P.crosshair.opacity, 0.05, nil, function(value)
+		VX.P.crosshair.opacity = value
+		VX.applyCrosshair()
+		VX.requestSave()
 	end)
 	for _, name in ipairs({ "Precise", "Dot", "Open", "Minimal" }) do
-		button(card, name .. " preset", function()
-			applyCrosshairPreset(BUILTIN_PRESETS[name], name)
-			renderPage()
+		VX.button(card, name .. " preset", function()
+			VX.applyCrosshairPreset(VX.BUILTIN_PRESETS[name], name)
+			VX.renderPage()
 		end)
 	end
-	local saved = presetNames()
+	local saved = VX.presetNames()
 	if #saved > 0 then
-		dropdown(card, "Saved presets", saved, saved[1], function(choice)
-			if G.presets[choice] then
-				applyCrosshairPreset(G.presets[choice], choice)
-				renderPage()
+		VX.dropdown(card, "Saved presets", saved, saved[1], function(choice)
+			if VX.G.presets[choice] then
+				VX.applyCrosshairPreset(VX.G.presets[choice], choice)
+				VX.renderPage()
 			end
 		end)
 	end
-	button(card, "Save preset", function()
-		savePreset()
+	VX.button(card, "Save preset", function()
+		VX.savePreset()
 	end, { primary = true })
-	button(card, "Reset crosshair", function()
-		P.crosshair = defaultProfile().crosshair
-		applyCrosshair()
-		requestSave()
-		notify("Crosshair reset.", "info")
-		renderPage()
+	VX.button(card, "Reset crosshair", function()
+		VX.P.crosshair = VX.defaultProfile().crosshair
+		VX.applyCrosshair()
+		VX.requestSave()
+		VX.notify("Crosshair reset.", "info")
+		VX.renderPage()
 	end)
 end
 
-local function renderPerformance()
-	textLabel(scroll, "Performance", 20, C.white, true, 26)
-	note(scroll, "Readings come from this client. Low graphics changes only your quality setting and can be turned back off.")
-	local card = stack(scroll, 6)
-	stat(card, fpsValue and string.format("FPS    %d", math.floor(fpsValue + 0.5)) or "FPS    …", "fps")
-	stat(card, pingText(), "ping")
-	stat(card, "Session    " .. formatTime(os.clock() - sessionStart), "session")
-	stat(card, memoryText(), "mem")
-	textLabel(card, "FPS history", 13, C.white, true, 18)
-	local chart = make("Frame", {
-		LayoutOrder = lay(card),
+ function VX.renderPerformance()
+	VX.textLabel(VX.scroll, "Performance", 20, VX.C.white, true, 26)
+	VX.note(VX.scroll, "Readings come from this client. Low graphics changes only your quality setting and can be turned back off.")
+	local card = VX.stack(VX.scroll, 6)
+	VX.stat(card, VX.fpsValue and string.format("FPS    %d", math.floor(VX.fpsValue + 0.5)) or "FPS    …", "fps")
+	VX.stat(card, VX.pingText(), "ping")
+	VX.stat(card, "Session    " .. VX.formatTime(os.clock() - VX.sessionStart), "session")
+	VX.stat(card, VX.memoryText(), "mem")
+	VX.textLabel(card, "FPS history", 13, VX.C.white, true, 18)
+	local chart = VX.make("Frame", {
+		LayoutOrder = VX.lay(card),
 		BackgroundTransparency = 1,
 		Size = UDim2.new(1, 0, 0, 72),
 	}, card)
-	chartBars = {}
-	local chartLayout = make("UIListLayout", {
+	VX.chartBars = {}
+	local chartLayout = VX.make("UIListLayout", {
 		FillDirection = Enum.FillDirection.Horizontal,
 		Padding = UDim.new(0, 3),
 		VerticalAlignment = Enum.VerticalAlignment.Bottom,
 		SortOrder = Enum.SortOrder.LayoutOrder,
 	}, chart)
 	for index = 1, 28 do
-		local slot = make("Frame", {
+		local slot = VX.make("Frame", {
 			LayoutOrder = index,
 			BackgroundTransparency = 1,
 			Size = UDim2.new(1 / 28, -3, 1, 0),
 		}, chart)
-		local bar = make("Frame", {
+		local bar = VX.make("Frame", {
 			AnchorPoint = Vector2.new(0.5, 1),
 			Position = UDim2.fromScale(0.5, 1),
 			Size = UDim2.new(1, 0, 0.08, 0),
-			BackgroundColor3 = C.white,
+			BackgroundColor3 = VX.C.white,
 			BorderSizePixel = 0,
 		}, slot)
-		corner(bar, 2)
-		chartBars[index] = bar
+		VX.corner(bar, 2)
+		VX.chartBars[index] = bar
 	end
 	chartLayout.Parent = chart
-	if graphicsAvailable then
-		toggle(card, "Low graphics", P.lowGraphics, "low-graphics", function(on)
-			local ok = setLowGraphics(on)
+	if VX.graphicsAvailable then
+		VX.toggle(card, "Low graphics", VX.P.lowGraphics, "low-graphics", function(on)
+			local ok = VX.setLowGraphics(on)
 			if ok == false then
 				return false
 			end
-			requestSave()
-			notify(on and "Graphics quality lowered on this client." or "Previous graphics quality restored.", "info")
+			VX.requestSave()
+			VX.notify(on and "Graphics quality lowered on this client." or "Previous graphics quality restored.", "info")
 		end)
-		note(card, "This sets your saved graphics quality to the lowest level, then restores the previous level when you turn it off.")
+		VX.note(card, "This sets your saved graphics quality to the lowest level, then restores the previous level when you turn it off.")
 	else
-		note(card, "Graphics quality can't be changed from this client, so the low-graphics control is hidden.")
+		VX.note(card, "Graphics quality can't be changed from this client, so the low-graphics control is hidden.")
 	end
-	toggle(card, "Show the HUD", P.hud.visible, nil, function(on)
-		P.hud.visible = on
-		applyHud()
-		requestSave()
+	VX.toggle(card, "Show the HUD", VX.P.hud.visible, nil, function(on)
+		VX.P.hud.visible = on
+		VX.applyHud()
+		VX.requestSave()
 	end)
 end
 
-local function renderPlayers()
-	textLabel(scroll, "Players", 20, C.white, true, 26)
-	note(scroll, "People in this server. Friend status uses Roblox's friend check and can be unavailable.")
-	local controls = fixedRow(scroll, 36)
+ function VX.renderPlayers()
+	VX.textLabel(VX.scroll, "Players", 20, VX.C.white, true, 26)
+	VX.note(VX.scroll, "People in this server. Friend status uses Roblox's friend check and can be unavailable.")
+	local controls = VX.fixedRow(VX.scroll, 36)
 	controls.BackgroundTransparency = 1
-	local filter = make("TextBox", {
+	local filter = VX.make("TextBox", {
 		Size = UDim2.new(1, -44, 1, 0),
-		BackgroundColor3 = C.card,
+		BackgroundColor3 = VX.C.card,
 		Text = "",
 		PlaceholderText = "Search players",
-		PlaceholderColor3 = C.muted,
-		TextColor3 = C.white,
+		PlaceholderColor3 = VX.C.muted,
+		TextColor3 = VX.C.white,
 		Font = Enum.Font.Gotham,
 		TextSize = 13,
 		ClearTextOnFocus = false,
 		BorderSizePixel = 0,
 	}, controls)
-	corner(filter, 8)
-	local refresh = make("TextButton", {
+	VX.corner(filter, 8)
+	local refresh = VX.make("TextButton", {
 		AnchorPoint = Vector2.new(1, 0.5),
 		Position = UDim2.new(1, 0, 0.5, 0),
 		Size = UDim2.fromOffset(36, 36),
-		BackgroundColor3 = C.card,
+		BackgroundColor3 = VX.C.card,
 		Text = "",
 		AutoButtonColor = false,
 		BorderSizePixel = 0,
 	}, controls)
-	corner(refresh, 8)
-	icon(refresh, "refresh", 16, C.white)
-	local list = make("ScrollingFrame", {
-		LayoutOrder = lay(scroll),
-		BackgroundColor3 = C.card,
+	VX.corner(refresh, 8)
+	VX.icon(refresh, "refresh", 16, VX.C.white)
+	local list = VX.make("ScrollingFrame", {
+		LayoutOrder = VX.lay(VX.scroll),
+		BackgroundColor3 = VX.C.card,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, 220),
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollBarThickness = 4,
-		ScrollBarImageColor3 = C.border,
+		ScrollBarImageColor3 = VX.C.border,
 		ElasticBehavior = Enum.ElasticBehavior.Never,
-	}, scroll)
-	corner(list, 12)
-	local detail = stack(scroll, 4)
-	local selectedUser = player.UserId
-	local detailName = textLabel(detail, "", 16, C.white, true, 22)
-	local detailUser = textLabel(detail, "", 12, C.muted, false, 16)
-	local detailId = textLabel(detail, "", 12, C.muted, false, 16)
-	local detailFriend = textLabel(detail, "", 12, C.white, false, 16)
+	}, VX.scroll)
+	VX.corner(list, 12)
+	local detail = VX.stack(VX.scroll, 4)
+	local selectedUser = VX.player.UserId
+	local detailName = VX.textLabel(detail, "", 16, VX.C.white, true, 22)
+	local detailUser = VX.textLabel(detail, "", 12, VX.C.muted, false, 16)
+	local detailId = VX.textLabel(detail, "", 12, VX.C.muted, false, 16)
+	local detailFriend = VX.textLabel(detail, "", 12, VX.C.white, false, 16)
 	local function showDetail(target)
 		selectedUser = target.UserId
 		detailName.Text = target.DisplayName
 		detailUser.Text = "@" .. target.Name
 		detailId.Text = "User ID    " .. tostring(target.UserId)
-		if target.UserId == player.UserId then
+		if target.UserId == VX.player.UserId then
 			detailFriend.Text = "This is you"
 			return
 		end
 		detailFriend.Text = "Friend status    Checking"
 		task.spawn(function()
 			local ok, isFriend = pcall(function()
-				return player:IsFriendsWith(target.UserId)
+				return VX.player:IsFriendsWith(target.UserId)
 			end)
 			if not detailFriend.Parent or selectedUser ~= target.UserId then
 				return
@@ -3382,26 +3383,26 @@ local function renderPlayers()
 			end
 		end)
 	end
-	button(detail, "Copy username", function()
-		local target = Players:GetPlayerByUserId(selectedUser)
+	VX.button(detail, "Copy username", function()
+		local target = VX.Players:GetPlayerByUserId(selectedUser)
 		if target then
-			copyText(target.Name, "username")
+			VX.copyText(target.Name, "username")
 		else
-			notify("That player left the server.", "warning")
+			VX.notify("That player left the server.", "warning")
 		end
 	end)
-	button(detail, "Copy user ID", function()
-		copyText(selectedUser, "user ID")
+	VX.button(detail, "Copy user ID", function()
+		VX.copyText(selectedUser, "user ID")
 	end)
 	local function buildList()
 		for _, child in ipairs(list:GetChildren()) do
 			child:Destroy()
 		end
-		make("UIListLayout", { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }, list)
-		make("UIPadding", { PaddingTop = UDim.new(0, 8), PaddingBottom = UDim.new(0, 8), PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8) }, list)
+		VX.make("UIListLayout", { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }, list)
+		VX.make("UIPadding", { PaddingTop = UDim.new(0, 8), PaddingBottom = UDim.new(0, 8), PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8) }, list)
 		local query = string.lower(filter.Text)
 		local shown = 0
-		local people = Players:GetPlayers()
+		local people = VX.Players:GetPlayers()
 		table.sort(people, function(a, b)
 			return string.lower(a.DisplayName) < string.lower(b.DisplayName)
 		end)
@@ -3409,49 +3410,49 @@ local function renderPlayers()
 			local haystack = string.lower(other.DisplayName .. " " .. other.Name .. " " .. tostring(other.UserId))
 			if query == "" or string.find(haystack, query, 1, true) then
 				shown += 1
-				local row = make("TextButton", {
+				local row = VX.make("TextButton", {
 					LayoutOrder = shown,
 					Size = UDim2.new(1, 0, 0, 48),
-					BackgroundColor3 = other.UserId == selectedUser and C.hover or C.panel,
+					BackgroundColor3 = other.UserId == selectedUser and VX.C.hover or VX.C.panel,
 					Text = "",
 					AutoButtonColor = false,
 					BorderSizePixel = 0,
 				}, list)
-				corner(row, 8)
-				local photo = make("ImageLabel", {
+				VX.corner(row, 8)
+				local photo = VX.make("ImageLabel", {
 					Position = UDim2.fromOffset(8, 8),
 					Size = UDim2.fromOffset(32, 32),
-					BackgroundColor3 = C.hover,
+					BackgroundColor3 = VX.C.hover,
 					BorderSizePixel = 0,
 				}, row)
-				corner(photo, 8)
+				VX.corner(photo, 8)
 				task.spawn(function()
 					local ok, image = pcall(function()
-						return Players:GetUserThumbnailAsync(other.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size48x48)
+						return VX.Players:GetUserThumbnailAsync(other.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size48x48)
 					end)
 					if ok and photo.Parent and type(image) == "string" then
 						photo.Image = image
 					end
 				end)
-				make("TextLabel", {
+				VX.make("TextLabel", {
 					BackgroundTransparency = 1,
 					Position = UDim2.fromOffset(48, 6),
 					Size = UDim2.new(1, -56, 0, 18),
 					Font = Enum.Font.GothamBold,
 					TextSize = 13,
 					TextXAlignment = Enum.TextXAlignment.Left,
-					TextColor3 = C.white,
+					TextColor3 = VX.C.white,
 					Text = other.DisplayName,
 					TextTruncate = Enum.TextTruncate.AtEnd,
 				}, row)
-				make("TextLabel", {
+				VX.make("TextLabel", {
 					BackgroundTransparency = 1,
 					Position = UDim2.fromOffset(48, 24),
 					Size = UDim2.new(1, -56, 0, 16),
 					Font = Enum.Font.Gotham,
 					TextSize = 11,
 					TextXAlignment = Enum.TextXAlignment.Left,
-					TextColor3 = C.muted,
+					TextColor3 = VX.C.muted,
 					Text = "@" .. other.Name,
 					TextTruncate = Enum.TextTruncate.AtEnd,
 				}, row)
@@ -3462,11 +3463,11 @@ local function renderPlayers()
 			end
 		end
 		if shown == 0 then
-			make("TextLabel", {
+			VX.make("TextLabel", {
 				BackgroundTransparency = 1,
 				Size = UDim2.new(1, 0, 0, 36),
 				Text = "No players match that search.",
-				TextColor3 = C.muted,
+				TextColor3 = VX.C.muted,
 				Font = Enum.Font.Gotham,
 				TextSize = 13,
 			}, list)
@@ -3474,62 +3475,62 @@ local function renderPlayers()
 	end
 	filter:GetPropertyChangedSignal("Text"):Connect(buildList)
 	refresh.Activated:Connect(buildList)
-	onPlayersChanged = buildList
-	trackPage(Players.PlayerAdded:Connect(function()
-		if onPlayersChanged then
-			onPlayersChanged()
+	VX.onPlayersChanged = buildList
+	VX.trackPage(VX.Players.PlayerAdded:Connect(function()
+		if VX.onPlayersChanged then
+			VX.onPlayersChanged()
 		end
 	end))
-	trackPage(Players.PlayerRemoving:Connect(function(leaving)
+	VX.trackPage(VX.Players.PlayerRemoving:Connect(function(leaving)
 		if leaving.UserId == selectedUser then
-			selectedUser = player.UserId
-			showDetail(player)
+			selectedUser = VX.player.UserId
+			showDetail(VX.player)
 		end
-		if onPlayersChanged then
-			onPlayersChanged()
+		if VX.onPlayersChanged then
+			VX.onPlayersChanged()
 		end
 	end))
-	showDetail(player)
+	showDetail(VX.player)
 	buildList()
 end
 
-local function renderUtilities()
-	textLabel(scroll, "Utilities", 20, C.white, true, 26)
-	note(scroll, storageNote)
-	local card = stack(scroll, 6)
-	button(card, "Copy place ID", function()
-		copyText(game.PlaceId, "place ID")
+ function VX.renderUtilities()
+	VX.textLabel(VX.scroll, "Utilities", 20, VX.C.white, true, 26)
+	VX.note(VX.scroll, VX.storageNote)
+	local card = VX.stack(VX.scroll, 6)
+	VX.button(card, "Copy place ID", function()
+		VX.copyText(game.PlaceId, "place ID")
 	end)
-	button(card, "Copy job ID", function()
+	VX.button(card, "Copy job ID", function()
 		if game.JobId == "" then
-			notify("This session has no Job ID.", "warning")
+			VX.notify("This session has no Job ID.", "warning")
 			return
 		end
-		copyText(game.JobId, "job ID")
+		VX.copyText(game.JobId, "job ID")
 	end)
-	button(card, "Export settings", function()
+	VX.button(card, "Export settings", function()
 		local ok, encoded = pcall(function()
-			return HttpService:JSONEncode({ version = 5, global = G })
+			return VX.HttpService:JSONEncode({ version = 5, global = VX.G })
 		end)
 		if not ok then
-			notify("Settings could not be encoded.", "error")
+			VX.notify("Settings could not be encoded.", "error")
 			warn("[VEXORA] Export failed: " .. tostring(encoded))
 			return
 		end
-		openModal({
+		VX.openModal({
 			title = "Export settings",
 			body = "This text is the full settings file. Copy it if you want a backup.",
 			text = encoded,
 			buttons = {
 				{ text = "Close" },
 				{ text = "Copy", primary = true, action = function(value)
-					copyText(value, "settings")
+					VX.copyText(value, "settings")
 				end },
 			},
 		})
 	end, { primary = true })
-	button(card, "Import settings", function()
-		openModal({
+	VX.button(card, "Import settings", function()
+		VX.openModal({
 			title = "Import settings",
 			body = "Paste a VEXORA 5 export. Invalid text is rejected.",
 			placeholder = "{ \"version\": 5 }",
@@ -3539,127 +3540,127 @@ local function renderUtilities()
 				{ text = "Cancel" },
 				{ text = "Import", primary = true, action = function(value)
 					local ok, data = pcall(function()
-						return HttpService:JSONDecode(value)
+						return VX.HttpService:JSONDecode(value)
 					end)
 					if not ok or type(data) ~= "table" or data.version ~= 5 or type(data.global) ~= "table" then
-						notify("That text isn't a VEXORA 5 settings file.", "error")
+						VX.notify("That text isn't a VEXORA 5 settings file.", "error")
 						return
 					end
-					if P.lowGraphics then
-						setLowGraphics(false)
+					if VX.P.lowGraphics then
+						VX.setLowGraphics(false)
 					end
-					G = sanitizeGlobal(data.global)
-					P = G.profiles[G.activeProfile]
-					applyAll()
-					requestSave()
-					notify("Settings imported.", "success")
-					renderPage()
-					refreshNav()
+					VX.G = VX.sanitizeGlobal(data.global)
+					VX.P = VX.G.profiles[VX.G.activeProfile]
+					VX.applyAll()
+					VX.requestSave()
+					VX.notify("Settings imported.", "success")
+					VX.renderPage()
+					VX.refreshNav()
 				end },
 			},
 		})
 	end)
-	textLabel(card, "Toggle menu    " .. G.binds.toggle, 13, C.white, false, 18)
-	textLabel(card, "Command palette    Ctrl + " .. G.binds.palette, 13, C.white, false, 18)
-	button(card, "Change menu key", function()
-		capturing = "toggle"
-		notify("Press a key for the menu toggle.", "info")
+	VX.textLabel(card, "Toggle menu    " .. VX.G.binds.toggle, 13, VX.C.white, false, 18)
+	VX.textLabel(card, "Command palette    Ctrl + " .. VX.G.binds.palette, 13, VX.C.white, false, 18)
+	VX.button(card, "Change menu key", function()
+		VX.capturing = "toggle"
+		VX.notify("Press a key for the menu toggle.", "info")
 	end)
-	button(card, "Change palette key", function()
-		capturing = "palette"
-		notify("Press a key for the command palette.", "info")
+	VX.button(card, "Change palette key", function()
+		VX.capturing = "palette"
+		VX.notify("Press a key for the command palette.", "info")
 	end)
-	button(card, "Reset all settings", function()
-		confirm("Reset everything?", "Clears profiles, shortcuts, favourites, and local menu settings.", function()
-			if P.lowGraphics then
-				setLowGraphics(false)
+	VX.button(card, "Reset all settings", function()
+		VX.confirm("Reset everything?", "Clears profiles, shortcuts, favourites, and local menu settings.", function()
+			if VX.P.lowGraphics then
+				VX.setLowGraphics(false)
 			end
-			G = defaultGlobal()
-			P = G.profiles.Default
-			selectedId = nil
-			applyAll()
+			VX.G = VX.defaultGlobal()
+			VX.P = VX.G.profiles.Default
+			VX.selectedId = nil
+			VX.applyAll()
 			local camera = workspace.CurrentCamera
 			if camera then
-				camera.FieldOfView = originalFOV
+				camera.FieldOfView = VX.originalFOV
 			end
-			requestSave()
-			notify("Settings reset for this session.", "success")
-			navigate("Games", nil, true)
+			VX.requestSave()
+			VX.notify("Settings reset for this session.", "success")
+			VX.navigate("Games", nil, true)
 		end)
 	end)
-	textLabel(card, "Notification history", 15, C.white, true, 22)
-	if #history == 0 then
-		note(card, "No notifications yet.")
+	VX.textLabel(card, "Notification history", 15, VX.C.white, true, 22)
+	if #VX.history == 0 then
+		VX.note(card, "No notifications yet.")
 	else
-		for index = 1, math.min(8, #history) do
-			textLabel(card, history[index].text, 12, C.muted, false, 18)
+		for index = 1, math.min(8, #VX.history) do
+			VX.textLabel(card, VX.history[index].text, 12, VX.C.muted, false, 18)
 		end
 	end
-	textLabel(card, "Recently used", 15, C.white, true, 22)
-	if #G.recents == 0 then
-		note(card, "Tools you open from search will show up here.")
+	VX.textLabel(card, "Recently used", 15, VX.C.white, true, 22)
+	if #VX.G.recents == 0 then
+		VX.note(card, "Tools you open from search will show up here.")
 	else
-		for _, id in ipairs(G.recents) do
-			local def = features[id]
+		for _, id in ipairs(VX.G.recents) do
+			local def = VX.features[id]
 			if def then
-				button(card, def.name, function()
-					useFeature(id)
+				VX.button(card, def.name, function()
+					VX.useFeature(id)
 				end)
 			end
 		end
 	end
 end
 
-local function renderUniversal()
-	if currentTab == "Camera" then
-		renderCamera()
-	elseif currentTab == "Interface" then
-		renderInterface()
-	elseif currentTab == "Crosshair" then
-		renderCrosshair()
-	elseif currentTab == "Performance" then
-		renderPerformance()
-	elseif currentTab == "Players" then
-		renderPlayers()
+ function VX.renderUniversal()
+	if VX.currentTab == "Camera" then
+		VX.renderCamera()
+	elseif VX.currentTab == "Interface" then
+		VX.renderInterface()
+	elseif VX.currentTab == "Crosshair" then
+		VX.renderCrosshair()
+	elseif VX.currentTab == "Performance" then
+		VX.renderPerformance()
+	elseif VX.currentTab == "Players" then
+		VX.renderPlayers()
 	else
-		renderUtilities()
+		VX.renderUtilities()
 	end
 end
 
-local function renderUrban()
-	local entry = gameById("urban")
-	local banner = make("Frame", {
-		LayoutOrder = lay(scroll),
-		BackgroundColor3 = C.card,
+ function VX.renderUrban()
+	local entry = VX.gameById("urban")
+	local banner = VX.make("Frame", {
+		LayoutOrder = VX.lay(VX.scroll),
+		BackgroundColor3 = VX.C.card,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, 176),
 		ClipsDescendants = true,
-	}, scroll)
-	corner(banner, 12)
-	stroke(banner, 0.45)
-	make("ImageLabel", {
-		BackgroundColor3 = C.hover,
+	}, VX.scroll)
+	VX.corner(banner, 12)
+	VX.stroke(banner, 0.45)
+	VX.make("ImageLabel", {
+		BackgroundColor3 = VX.C.hover,
 		Size = UDim2.fromScale(1, 1),
 		ScaleType = Enum.ScaleType.Crop,
 		BorderSizePixel = 0,
 		Image = "rbxthumb://type=GameThumbnail&id=" .. tostring(entry.universeId) .. "&w=768&h=432",
 	}, banner)
-	local scrim = make("Frame", {
+	local scrim = VX.make("Frame", {
 		AnchorPoint = Vector2.new(0, 1),
 		Position = UDim2.fromScale(0, 1),
 		Size = UDim2.new(1, 0, 0, 78),
-		BackgroundColor3 = C.bg,
+		BackgroundColor3 = VX.C.bg,
 		BorderSizePixel = 0,
 		ZIndex = 2,
 	}, banner)
-	make("UIGradient", {
+	VX.make("UIGradient", {
 		Rotation = 90,
 		Transparency = NumberSequence.new({
 			NumberSequenceKeypoint.new(0, 1),
 			NumberSequenceKeypoint.new(1, 0.15),
 		}),
 	}, scrim)
-	make("TextLabel", {
+	VX.make("TextLabel", {
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0, 1),
 		Position = UDim2.new(0, 14, 1, -30),
@@ -3667,11 +3668,11 @@ local function renderUrban()
 		Font = Enum.Font.GothamBold,
 		TextSize = 20,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		TextColor3 = C.white,
+		TextColor3 = VX.C.white,
 		Text = entry.name,
 		ZIndex = 3,
 	}, banner)
-	make("TextLabel", {
+	VX.make("TextLabel", {
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0, 1),
 		Position = UDim2.new(0, 14, 1, -10),
@@ -3679,298 +3680,298 @@ local function renderUrban()
 		Font = Enum.Font.Gotham,
 		TextSize = 12,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		TextColor3 = inUrban() and C.green or C.muted,
-		Text = inUrban() and "In this game" or "Not in this game",
+		TextColor3 = VX.inUrban() and VX.C.green or VX.C.muted,
+		Text = VX.inUrban() and "In this game" or "Not in this game",
 		ZIndex = 3,
 	}, banner)
 
-	local info = stack(scroll, 4)
-	textLabel(info, "Session", 15, C.white, true, 20)
-	note(info, inUrban() and "You are in Urban Reload. The tools below are still local: crosshair, camera, and the HUD." or "You are not in Urban Reload. These controls still edit your local crosshair, camera, and HUD, and they do not change that game.")
-	textLabel(info, "Place ID    " .. tostring(entry.placeId), 13, C.white, false, 18)
-	textLabel(info, "Universe ID    " .. tostring(entry.universeId), 13, C.white, false, 18)
-	textLabel(info, "Experience    " .. experienceName, 13, C.muted, false, 18)
-	button(info, "Copy game link", function()
-		copyText(entry.link, "game link")
+	local info = VX.stack(VX.scroll, 4)
+	VX.textLabel(info, "Session", 15, VX.C.white, true, 20)
+	VX.note(info, VX.inUrban() and "You are in Urban Reload. The tools below are still local: crosshair, camera, and the HUD." or "You are not in Urban Reload. These controls still edit your local crosshair, camera, and HUD, and they do not change that game.")
+	VX.textLabel(info, "Place ID    " .. tostring(entry.placeId), 13, VX.C.white, false, 18)
+	VX.textLabel(info, "Universe ID    " .. tostring(entry.universeId), 13, VX.C.white, false, 18)
+	VX.textLabel(info, "Experience    " .. VX.experienceName, 13, VX.C.muted, false, 18)
+	VX.button(info, "Copy game link", function()
+		VX.copyText(entry.link, "game link")
 	end)
 
-	local aim = stack(scroll, 6)
-	textLabel(aim, "Crosshair presets", 15, C.white, true, 20)
-	note(aim, "Screen drawings only. They do not change weapons, hit detection, or other players.")
+	local aim = VX.stack(VX.scroll, 6)
+	VX.textLabel(aim, "Crosshair presets", 15, VX.C.white, true, 20)
+	VX.note(aim, "Screen drawings only. They do not change weapons, hit detection, or other players.")
 	for _, name in ipairs({ "Precise", "Dot", "Open", "Minimal" }) do
-		button(aim, name, function()
-			applyCrosshairPreset(BUILTIN_PRESETS[name], name)
+		VX.button(aim, name, function()
+			VX.applyCrosshairPreset(VX.BUILTIN_PRESETS[name], name)
 		end)
 	end
-	button(aim, "Open full crosshair settings", function()
-		navigate("Universal", "Crosshair", true)
+	VX.button(aim, "Open full crosshair settings", function()
+		VX.navigate("Universal", "Crosshair", true)
 	end, { primary = true })
 
-	local overlay = stack(scroll, 6)
-	textLabel(overlay, "Overlay", 15, C.white, true, 20)
-	toggle(overlay, "FPS, ping, and session HUD", P.hud.visible, nil, function(on)
-		P.hud.visible = on
-		applyHud()
-		requestSave()
+	local overlay = VX.stack(VX.scroll, 6)
+	VX.textLabel(overlay, "Overlay", 15, VX.C.white, true, 20)
+	VX.toggle(overlay, "FPS, ping, and session HUD", VX.P.hud.visible, nil, function(on)
+		VX.P.hud.visible = on
+		VX.applyHud()
+		VX.requestSave()
 	end)
-	stat(overlay, "Session    " .. formatTime(os.clock() - sessionStart), "session")
-	stat(overlay, fpsValue and string.format("FPS    %d", math.floor(fpsValue + 0.5)) or "FPS    …", "fps")
-	stat(overlay, pingText(), "ping")
+	VX.stat(overlay, "Session    " .. VX.formatTime(os.clock() - VX.sessionStart), "session")
+	VX.stat(overlay, VX.fpsValue and string.format("FPS    %d", math.floor(VX.fpsValue + 0.5)) or "FPS    …", "fps")
+	VX.stat(overlay, VX.pingText(), "ping")
 
-	local cameraCard = stack(scroll, 6)
-	textLabel(cameraCard, "Camera", 15, C.white, true, 20)
-	local currentFov = P.fov or (workspace.CurrentCamera and workspace.CurrentCamera.FieldOfView) or originalFOV
-	slider(cameraCard, "Field of view", 50, 110, currentFov, 1, nil, function(value, final)
-		P.fov = value
-		applyFov(final and P.smoothFov)
-		requestSave()
+	local cameraCard = VX.stack(VX.scroll, 6)
+	VX.textLabel(cameraCard, "Camera", 15, VX.C.white, true, 20)
+	local currentFov = VX.P.fov or (workspace.CurrentCamera and workspace.CurrentCamera.FieldOfView) or VX.originalFOV
+	VX.slider(cameraCard, "Field of view", 50, 110, currentFov, 1, nil, function(value, final)
+		VX.P.fov = value
+		VX.applyFov(final and VX.P.smoothFov)
+		VX.requestSave()
 	end)
-	button(cameraCard, "Open camera tools", function()
-		navigate("Universal", "Camera", true)
+	VX.button(cameraCard, "Open camera tools", function()
+		VX.navigate("Universal", "Camera", true)
 	end)
 
-	local favouriteCard = stack(scroll, 4)
-	textLabel(favouriteCard, "Favourites", 15, C.white, true, 20)
+	local favouriteCard = VX.stack(VX.scroll, 4)
+	VX.textLabel(favouriteCard, "Favourites", 15, VX.C.white, true, 20)
 	local anyFavourite = false
-	for _, id in ipairs(featureOrder) do
-		if G.favorites[id] and features[id] then
+	for _, id in ipairs(VX.featureOrder) do
+		if VX.G.favorites[id] and VX.features[id] then
 			anyFavourite = true
-			button(favouriteCard, features[id].name, function()
-				useFeature(id)
+			VX.button(favouriteCard, VX.features[id].name, function()
+				VX.useFeature(id)
 			end)
 		end
 	end
 	if not anyFavourite then
-		note(favouriteCard, "Star a tool from Universal and it will be listed here.")
+		VX.note(favouriteCard, "Star a tool from Universal and it will be listed here.")
 	end
 end
 
-local function renderSettings()
-	textLabel(scroll, "Settings", 20, C.white, true, 26)
-	note(scroll, storageNote)
-	local card = stack(scroll, 6)
-	textLabel(card, "Profile    " .. G.activeProfile, 14, C.white, true, 20)
+ function VX.renderSettings()
+	VX.textLabel(VX.scroll, "Settings", 20, VX.C.white, true, 26)
+	VX.note(VX.scroll, VX.storageNote)
+	local card = VX.stack(VX.scroll, 6)
+	VX.textLabel(card, "Profile    " .. VX.G.activeProfile, 14, VX.C.white, true, 20)
 	local names = {}
-	for name in pairs(G.profiles) do
+	for name in pairs(VX.G.profiles) do
 		table.insert(names, name)
 	end
 	table.sort(names)
-	dropdown(card, "Active profile", names, G.activeProfile, function(choice)
-		if G.profiles[choice] then
-			G.activeProfile = choice
-			P = G.profiles[choice]
-			applyAll()
-			requestSave()
-			notify("Using profile " .. choice .. ".", "success")
-			renderPage()
+	VX.dropdown(card, "Active profile", names, VX.G.activeProfile, function(choice)
+		if VX.G.profiles[choice] then
+			VX.G.activeProfile = choice
+			VX.P = VX.G.profiles[choice]
+			VX.applyAll()
+			VX.requestSave()
+			VX.notify("Using profile " .. choice .. ".", "success")
+			VX.renderPage()
 		end
 	end)
-	button(card, "New profile from current", function()
-		promptBox("New profile", "Name", function(name)
-			if G.profiles[name] then
-				notify("That profile name already exists.", "warning")
+	VX.button(card, "New profile from current", function()
+		VX.promptBox("New profile", "Name", function(name)
+			if VX.G.profiles[name] then
+				VX.notify("That profile name already exists.", "warning")
 				return
 			end
 			if #name > 24 then
-				notify("Use 24 characters or fewer.", "warning")
+				VX.notify("Use 24 characters or fewer.", "warning")
 				return
 			end
-			G.profiles[name] = deepCopy(P)
-			G.activeProfile = name
-			P = G.profiles[name]
-			requestSave()
-			notify("Profile " .. name .. " is active.", "success")
-			renderPage()
+			VX.G.profiles[name] = VX.deepCopy(VX.P)
+			VX.G.activeProfile = name
+			VX.P = VX.G.profiles[name]
+			VX.requestSave()
+			VX.notify("Profile " .. name .. " is active.", "success")
+			VX.renderPage()
 		end)
 	end, { primary = true })
-	button(card, "Delete active profile", function()
-		if G.activeProfile == "Default" then
-			notify("The Default profile stays so there is always one to use.", "warning")
+	VX.button(card, "Delete active profile", function()
+		if VX.G.activeProfile == "Default" then
+			VX.notify("The Default profile stays so there is always one to use.", "warning")
 			return
 		end
-		local name = G.activeProfile
-		confirm("Delete " .. name .. "?", "The Default profile becomes active.", function()
-			G.profiles[name] = nil
-			G.activeProfile = "Default"
-			if not G.profiles.Default then
-				G.profiles.Default = defaultProfile()
+		local name = VX.G.activeProfile
+		VX.confirm("Delete " .. name .. "?", "The Default profile becomes active.", function()
+			VX.G.profiles[name] = nil
+			VX.G.activeProfile = "Default"
+			if not VX.G.profiles.Default then
+				VX.G.profiles.Default = VX.defaultProfile()
 			end
-			P = G.profiles.Default
-			applyAll()
-			requestSave()
-			notify("Deleted " .. name .. ".", "info")
-			renderPage()
+			VX.P = VX.G.profiles.Default
+			VX.applyAll()
+			VX.requestSave()
+			VX.notify("Deleted " .. name .. ".", "info")
+			VX.renderPage()
 		end)
 	end)
-	button(card, "Reset active profile", function()
-		confirm("Reset " .. G.activeProfile .. "?", "Restores this profile's menu settings. Favourites and other profiles stay.", function()
-			if P.lowGraphics then
-				setLowGraphics(false)
+	VX.button(card, "Reset active profile", function()
+		VX.confirm("Reset " .. VX.G.activeProfile .. "?", "Restores this profile's menu settings. Favourites and other profiles stay.", function()
+			if VX.P.lowGraphics then
+				VX.setLowGraphics(false)
 			end
-			local fresh = defaultProfile()
-			G.profiles[G.activeProfile] = fresh
-			P = fresh
-			applyAll()
+			local fresh = VX.defaultProfile()
+			VX.G.profiles[VX.G.activeProfile] = fresh
+			VX.P = fresh
+			VX.applyAll()
 			local camera = workspace.CurrentCamera
 			if camera then
-				camera.FieldOfView = originalFOV
+				camera.FieldOfView = VX.originalFOV
 			end
-			requestSave()
-			notify("Profile reset.", "success")
-			renderPage()
+			VX.requestSave()
+			VX.notify("Profile reset.", "success")
+			VX.renderPage()
 		end)
 	end)
-	button(card, "Appearance and navigation", function()
-		navigate("Universal", "Interface", true)
+	VX.button(card, "Appearance and navigation", function()
+		VX.navigate("Universal", "Interface", true)
 	end)
-	textLabel(card, "About", 15, C.white, true, 22)
-	note(card, "VEXORA 5.0 is a local client menu. It does not change other players, server gameplay, or Roblox protection systems.")
-	local storageLabel = textLabel(card, storageNote, 12, C.muted, false, 48)
+	VX.textLabel(card, "About", 15, VX.C.white, true, 22)
+	VX.note(card, "VEXORA 5.0 is a local client menu. It does not change other players, server gameplay, or Roblox protection systems.")
+	local storageLabel = VX.textLabel(card, VX.storageNote, 12, VX.C.muted, false, 48)
 	storageLabel.TextWrapped = true
 	storageLabel.TextTruncate = Enum.TextTruncate.None
 	storageLabel.TextYAlignment = Enum.TextYAlignment.Top
 end
 
-renderPage = function()
-	clearScroll()
-	if currentPage == "Home" then
-		renderHome()
-	elseif currentPage == "Games" then
-		renderGames()
-	elseif currentPage == "Universal" then
-		renderUniversal()
-	elseif currentPage == "Urban" then
-		renderUrban()
-	elseif currentPage == "Settings" then
-		renderSettings()
+VX.renderPage = function()
+	VX.clearScroll()
+	if VX.currentPage == "Home" then
+		VX.renderHome()
+	elseif VX.currentPage == "Games" then
+		VX.renderGames()
+	elseif VX.currentPage == "Universal" then
+		VX.renderUniversal()
+	elseif VX.currentPage == "Urban" then
+		VX.renderUrban()
+	elseif VX.currentPage == "Settings" then
+		VX.renderSettings()
 	end
 end
 
-local function registerFeatures()
-	feature({ id = "choose-profile", name = "Change game profile", category = "Menu", icon = "gamepad", description = "Open the game picker.", run = function()
-		navigate("Games", nil, true)
+ function VX.registerFeatures()
+	VX.feature({ id = "choose-profile", name = "Change game profile", category = "Menu", icon = "gamepad", description = "Open the game picker.", run = function()
+		VX.navigate("Games", nil, true)
 	end })
-	feature({ id = "open-universal", name = "Universal tools", category = "Menu", icon = "sliders", description = "Camera, HUD, crosshair, players, and utilities.", run = function()
-		navigate("Universal", "Camera", true)
+	VX.feature({ id = "open-universal", name = "Universal tools", category = "Menu", icon = "sliders", description = "Camera, HUD, crosshair, players, and utilities.", run = function()
+		VX.navigate("Universal", "Camera", true)
 	end })
-	feature({ id = "open-settings", name = "Open settings", category = "Menu", icon = "settings", description = "Profiles, reset, and storage.", run = function()
-		navigate("Settings", nil, true)
+	VX.feature({ id = "open-settings", name = "Open settings", category = "Menu", icon = "settings", description = "Profiles, reset, and storage.", run = function()
+		VX.navigate("Settings", nil, true)
 	end })
-	feature({ id = "toggle-hud", name = "Toggle HUD", category = "Interface", icon = "monitor", description = "Show or hide FPS, ping, and the session timer.", run = function()
-		P.hud.visible = not P.hud.visible
-		applyHud()
-		requestSave()
-		notify(P.hud.visible and "HUD on." or "HUD off.", "info")
+	VX.feature({ id = "toggle-hud", name = "Toggle HUD", category = "Interface", icon = "monitor", description = "Show or hide FPS, ping, and the session timer.", run = function()
+		VX.P.hud.visible = not VX.P.hud.visible
+		VX.applyHud()
+		VX.requestSave()
+		VX.notify(VX.P.hud.visible and "HUD on." or "HUD off.", "info")
 	end })
-	feature({ id = "reset-position", name = "Reset menu position", category = "Interface", icon = "refresh", description = "Center the window.", run = function()
-		window.Position = UDim2.fromScale(0.5, 0.5)
-		notify("Menu centered.", "info")
+	VX.feature({ id = "reset-position", name = "Reset menu position", category = "Interface", icon = "refresh", description = "Center the window.", run = function()
+		VX.window.Position = UDim2.fromScale(0.5, 0.5)
+		VX.notify("Menu centered.", "info")
 	end })
-	feature({ id = "reset-hud", name = "Reset HUD position", category = "Interface", icon = "monitor", description = "Move the HUD back to the top left.", run = function()
-		P.hud.x = 16
-		P.hud.y = 16
-		applyHud()
-		requestSave()
-		notify("HUD moved to the top left.", "info")
+	VX.feature({ id = "reset-hud", name = "Reset HUD position", category = "Interface", icon = "monitor", description = "Move the HUD back to the top left.", run = function()
+		VX.P.hud.x = 16
+		VX.P.hud.y = 16
+		VX.applyHud()
+		VX.requestSave()
+		VX.notify("HUD moved to the top left.", "info")
 	end })
-	feature({ id = "minimise", name = "Minimise menu", category = "Menu", icon = "minus", description = "Hide the window. Right Shift opens it again.", opens = false, run = function()
-		if windowOpen then
-			toggleWindow()
+	VX.feature({ id = "minimise", name = "Minimise menu", category = "Menu", icon = "minus", description = "Hide the window. Right Shift opens it again.", opens = false, run = function()
+		if VX.windowOpen then
+			VX.toggleWindow()
 		end
 	end })
-	feature({ id = "fov", name = "Field of view", category = "Camera", icon = "camera", description = "Set your local camera field of view.", run = function()
-		navigate("Universal", "Camera", true)
+	VX.feature({ id = "fov", name = "Field of view", category = "Camera", icon = "camera", description = "Set your local camera field of view.", run = function()
+		VX.navigate("Universal", "Camera", true)
 	end })
-	feature({ id = "fov-reset", name = "Restore field of view", category = "Camera", icon = "camera", description = "Put the camera back to the field of view from when VEXORA started.", run = function()
+	VX.feature({ id = "fov-reset", name = "Restore field of view", category = "Camera", icon = "camera", description = "Put the camera back to the field of view from when VEXORA started.", run = function()
 		local camera = workspace.CurrentCamera
 		if camera then
-			camera.FieldOfView = originalFOV
+			camera.FieldOfView = VX.originalFOV
 		end
-		P.fov = originalFOV
-		requestSave()
-		notify("Field of view restored.", "success")
-		if currentPage == "Universal" and currentTab == "Camera" then
-			renderPage()
+		VX.P.fov = VX.originalFOV
+		VX.requestSave()
+		VX.notify("Field of view restored.", "success")
+		if VX.currentPage == "Universal" and VX.currentTab == "Camera" then
+			VX.renderPage()
 		end
 	end })
-	feature({ id = "smooth-fov", name = "Smooth field of view", category = "Camera", icon = "camera", description = "Ease field-of-view changes.", run = function()
-		navigate("Universal", "Camera", true)
+	VX.feature({ id = "smooth-fov", name = "Smooth field of view", category = "Camera", icon = "camera", description = "Ease field-of-view changes.", run = function()
+		VX.navigate("Universal", "Camera", true)
 	end })
-	feature({ id = "ui-scale", name = "UI scale", category = "Interface", icon = "sliders", description = "Scale the VEXORA window.", run = function()
-		navigate("Universal", "Interface", true)
+	VX.feature({ id = "ui-scale", name = "UI scale", category = "Interface", icon = "sliders", description = "Scale the VEXORA window.", run = function()
+		VX.navigate("Universal", "Interface", true)
 	end })
-	feature({ id = "opacity", name = "Interface opacity", category = "Interface", icon = "sliders", description = "Fade the window.", run = function()
-		navigate("Universal", "Interface", true)
+	VX.feature({ id = "opacity", name = "Interface opacity", category = "Interface", icon = "sliders", description = "Fade the window.", run = function()
+		VX.navigate("Universal", "Interface", true)
 	end })
-	feature({ id = "grid", name = "Grid background", category = "Interface", icon = "sliders", description = "Show or hide the grid.", run = function()
-		navigate("Universal", "Interface", true)
+	VX.feature({ id = "grid", name = "Grid background", category = "Interface", icon = "sliders", description = "Show or hide the grid.", run = function()
+		VX.navigate("Universal", "Interface", true)
 	end })
-	feature({ id = "pulses", name = "RGB pulses", category = "Interface", icon = "sliders", description = "Travelling light on the grid.", run = function()
-		navigate("Universal", "Interface", true)
+	VX.feature({ id = "pulses", name = "RGB pulses", category = "Interface", icon = "sliders", description = "Travelling light on the grid.", run = function()
+		VX.navigate("Universal", "Interface", true)
 	end })
-	feature({ id = "motion", name = "Reduced motion", category = "Interface", icon = "sliders", description = "Shorten animation and stop pulses.", run = function()
-		navigate("Universal", "Interface", true)
+	VX.feature({ id = "motion", name = "Reduced motion", category = "Interface", icon = "sliders", description = "Shorten animation and stop pulses.", run = function()
+		VX.navigate("Universal", "Interface", true)
 	end })
-	feature({ id = "crosshair", name = "Crosshair", category = "Crosshair", icon = "camera", description = "Local crosshair shape, size, and colour.", run = function()
-		navigate("Universal", "Crosshair", true)
+	VX.feature({ id = "crosshair", name = "Crosshair", category = "Crosshair", icon = "camera", description = "Local crosshair shape, size, and colour.", run = function()
+		VX.navigate("Universal", "Crosshair", true)
 	end })
-	feature({ id = "players", name = "Player browser", category = "Players", icon = "users", description = "Search people in this server.", run = function()
-		navigate("Universal", "Players", true)
+	VX.feature({ id = "players", name = "Player browser", category = "Players", icon = "users", description = "Search people in this server.", run = function()
+		VX.navigate("Universal", "Players", true)
 	end })
-	feature({ id = "low-graphics", name = "Low graphics", category = "Performance", icon = "monitor", description = "Lower your local graphics quality.", run = function()
-		navigate("Universal", "Performance", true)
+	VX.feature({ id = "low-graphics", name = "Low graphics", category = "Performance", icon = "monitor", description = "Lower your local graphics quality.", run = function()
+		VX.navigate("Universal", "Performance", true)
 	end })
-	feature({ id = "export", name = "Export settings", category = "Settings", icon = "save", description = "Copy settings as text.", run = function()
-		navigate("Universal", "Utilities", true)
+	VX.feature({ id = "export", name = "Export settings", category = "Settings", icon = "save", description = "Copy settings as text.", run = function()
+		VX.navigate("Universal", "Utilities", true)
 	end })
-	feature({ id = "shortcuts", name = "Keyboard shortcuts", category = "Settings", icon = "keyboard", description = "View and change menu keys.", run = function()
-		navigate("Universal", "Utilities", true)
+	VX.feature({ id = "shortcuts", name = "Keyboard shortcuts", category = "Settings", icon = "keyboard", description = "View and change menu keys.", run = function()
+		VX.navigate("Universal", "Utilities", true)
 	end })
 end
 
-local function makeNavButton(parent, item, dockButton)
-	local buttonObj = make("TextButton", {
-		Position = dockButton and UDim2.fromOffset((table.find(NAV, item) - 1) * 44, 0) or UDim2.fromOffset(15, 72 + (table.find(NAV, item) - 1) * 48),
+ function VX.makeNavButton(parent, item, dockButton)
+	local buttonObj = VX.make("TextButton", {
+		Position = dockButton and UDim2.fromOffset((table.find(VX.NAV, item) - 1) * 44, 0) or UDim2.fromOffset(15, 72 + (table.find(VX.NAV, item) - 1) * 48),
 		Size = dockButton and UDim2.fromOffset(40, 36) or UDim2.fromOffset(40, 40),
-		BackgroundColor3 = dockButton and C.card or C.panel,
+		BackgroundColor3 = dockButton and VX.C.card or VX.C.panel,
 		Text = "",
 		AutoButtonColor = false,
 		BorderSizePixel = 0,
 	}, parent)
-	corner(buttonObj, 10)
-	icon(buttonObj, item.icon, dockButton and 16 or 18, C.muted)
+	VX.corner(buttonObj, 10)
+	VX.icon(buttonObj, item.icon, dockButton and 16 or 18, VX.C.muted)
 	if not dockButton then
-		local mark = make("Frame", {
+		local mark = VX.make("Frame", {
 			Name = "Mark",
 			AnchorPoint = Vector2.new(0, 0.5),
 			Position = UDim2.new(0, 2, 0.5, 0),
 			Size = UDim2.fromOffset(2, 16),
-			BackgroundColor3 = accentColor(),
+			BackgroundColor3 = VX.accentColor(),
 			BorderSizePixel = 0,
 			Visible = false,
 		}, buttonObj)
-		corner(mark, 2)
-		trackAccent(mark, "BackgroundColor3")
+		VX.corner(mark, 2)
+		VX.trackAccent(mark, "BackgroundColor3")
 	end
-	bindHover(buttonObj, dockButton and C.card or C.panel, C.hover, C.bg)
-	bindTip(buttonObj, item.tip)
+	VX.bindHover(buttonObj, dockButton and VX.C.card or VX.C.panel, VX.C.hover, VX.C.bg)
+	VX.bindTip(buttonObj, item.tip)
 	buttonObj.Activated:Connect(function()
-		navigate(item.id)
+		VX.navigate(item.id)
 	end)
-	navButtons[item.id] = navButtons[item.id] or {}
+	VX.navButtons[item.id] = VX.navButtons[item.id] or {}
 	if dockButton then
-		navButtons[item.id].dock = buttonObj
+		VX.navButtons[item.id].dock = buttonObj
 	else
-		navButtons[item.id].side = buttonObj
+		VX.navButtons[item.id].side = buttonObj
 	end
 end
 
-for _, item in ipairs(NAV) do
-	makeNavButton(sidebar, item, false)
-	makeNavButton(dockItems, item, true)
+for _, item in ipairs(VX.NAV) do
+	VX.makeNavButton(VX.sidebar, item, false)
+	VX.makeNavButton(VX.dockItems, item, true)
 end
 
-local TABS = {
+ VX.TABS = {
 	{ "Camera", "camera" },
 	{ "Interface", "sliders" },
 	{ "Crosshair", "camera" },
@@ -3978,207 +3979,207 @@ local TABS = {
 	{ "Players", "users" },
 	{ "Utilities", "keyboard" },
 }
-for index, tab in ipairs(TABS) do
-	local tabButton = make("TextButton", {
+for index, tab in ipairs(VX.TABS) do
+	local tabButton = VX.make("TextButton", {
 		Name = tab[1],
 		LayoutOrder = index,
 		AutomaticSize = Enum.AutomaticSize.X,
 		Size = UDim2.fromOffset(0, 28),
-		BackgroundColor3 = C.bg,
+		BackgroundColor3 = VX.C.bg,
 		Text = "   " .. tab[1] .. "   ",
-		TextColor3 = C.muted,
+		TextColor3 = VX.C.muted,
 		Font = Enum.Font.GothamBold,
 		TextSize = 12,
 		AutoButtonColor = false,
 		BorderSizePixel = 0,
-	}, tabBar)
-	corner(tabButton, 8)
+	}, VX.tabBar)
+	VX.corner(tabButton, 8)
 	tabButton.Activated:Connect(function()
-		navigate("Universal", tab[1], true)
+		VX.navigate("Universal", tab[1], true)
 	end)
 end
 
-searchButton.Activated:Connect(openPalette)
-minButton.Activated:Connect(function()
-	useFeature("minimise")
+VX.searchButton.Activated:Connect(VX.openPalette)
+VX.minButton.Activated:Connect(function()
+	VX.useFeature("minimise")
 end)
-closeButton.Activated:Connect(function()
-	if windowOpen then
-		toggleWindow()
+VX.closeButton.Activated:Connect(function()
+	if VX.windowOpen then
+		VX.toggleWindow()
 	end
 end)
-bindTip(minButton, "Minimise")
-bindTip(closeButton, "Close")
-bindTip(searchButton, "Search")
+VX.bindTip(VX.minButton, "Minimise")
+VX.bindTip(VX.closeButton, "Close")
+VX.bindTip(VX.searchButton, "Search")
 
-header.InputBegan:Connect(function(input)
+VX.header.InputBegan:Connect(function(input)
 	if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.Touch then
 		return
 	end
-	local localX = input.Position.X - header.AbsolutePosition.X
-	if localX > header.AbsoluteSize.X - 280 then
+	local localX = input.Position.X - VX.header.AbsolutePosition.X
+	if localX > VX.header.AbsoluteSize.X - 280 then
 		return
 	end
-	windowDrag = true
-	dragStart = input.Position
-	dragOrigin = window.Position
+	VX.windowDrag = true
+	VX.dragStart = input.Position
+	VX.dragOrigin = VX.window.Position
 end)
 
-hud.InputBegan:Connect(function(input)
+VX.hud.InputBegan:Connect(function(input)
 	if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.Touch then
 		return
 	end
-	hudDrag = true
-	dragStart = input.Position
-	dragOrigin = hud.Position
+	VX.hudDrag = true
+	VX.dragStart = input.Position
+	VX.dragOrigin = VX.hud.Position
 end)
 
-track(UserInputService.InputEnded:Connect(function(input)
+VX.track(VX.UserInputService.InputEnded:Connect(function(input)
 	if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.Touch then
 		return
 	end
-	if hudDrag then
-		hudDrag = false
+	if VX.hudDrag then
+		VX.hudDrag = false
 		local camera = workspace.CurrentCamera
 		local view = camera and camera.ViewportSize or Vector2.new(1280, 720)
-		P.hud.x = math.clamp(hud.Position.X.Offset, 8, math.max(8, view.X - 184))
-		P.hud.y = math.clamp(hud.Position.Y.Offset, 8, math.max(8, view.Y - 90))
-		hud.Position = UDim2.fromOffset(P.hud.x, P.hud.y)
-		requestSave()
+		VX.P.hud.x = math.clamp(VX.hud.Position.X.Offset, 8, math.max(8, view.X - 184))
+		VX.P.hud.y = math.clamp(VX.hud.Position.Y.Offset, 8, math.max(8, view.Y - 90))
+		VX.hud.Position = UDim2.fromOffset(VX.P.hud.x, VX.P.hud.y)
+		VX.requestSave()
 	end
-	windowDrag = false
+	VX.windowDrag = false
 end))
 
-track(UserInputService.InputChanged:Connect(function(input)
+VX.track(VX.UserInputService.InputChanged:Connect(function(input)
 	if input.UserInputType ~= Enum.UserInputType.MouseMovement and input.UserInputType ~= Enum.UserInputType.Touch then
 		return
 	end
-	if windowDrag and dragStart and dragOrigin then
-		local delta = input.Position - dragStart
-		window.Position = UDim2.new(dragOrigin.X.Scale, dragOrigin.X.Offset + delta.X, dragOrigin.Y.Scale, dragOrigin.Y.Offset + delta.Y)
-	elseif hudDrag and dragStart and dragOrigin then
-		local delta = input.Position - dragStart
-		hud.Position = UDim2.fromOffset(dragOrigin.X.Offset + delta.X, dragOrigin.Y.Offset + delta.Y)
+	if VX.windowDrag and VX.dragStart and VX.dragOrigin then
+		local delta = input.Position - VX.dragStart
+		VX.window.Position = UDim2.new(VX.dragOrigin.X.Scale, VX.dragOrigin.X.Offset + delta.X, VX.dragOrigin.Y.Scale, VX.dragOrigin.Y.Offset + delta.Y)
+	elseif VX.hudDrag and VX.dragStart and VX.dragOrigin then
+		local delta = input.Position - VX.dragStart
+		VX.hud.Position = UDim2.fromOffset(VX.dragOrigin.X.Offset + delta.X, VX.dragOrigin.Y.Offset + delta.Y)
 	end
 end))
 
-track(UserInputService.InputBegan:Connect(function(input, processed)
-	if not alive then
+VX.track(VX.UserInputService.InputBegan:Connect(function(input, processed)
+	if not VX.alive then
 		return
 	end
-	if capturing then
+	if VX.capturing then
 		if input.KeyCode == Enum.KeyCode.Escape then
-			capturing = nil
-			notify("Shortcut change cancelled.", "info")
+			VX.capturing = nil
+			VX.notify("Shortcut change cancelled.", "info")
 			return
 		end
-		if input.KeyCode ~= Enum.KeyCode.Unknown and validKey(input.KeyCode.Name) then
-			local which = capturing
-			capturing = nil
-			G.binds[which] = input.KeyCode.Name
-			requestSave()
-			notify("Shortcut set to " .. input.KeyCode.Name .. ".", "success")
-			if currentPage == "Universal" and currentTab == "Utilities" then
-				renderPage()
+		if input.KeyCode ~= Enum.KeyCode.Unknown and VX.validKey(input.KeyCode.Name) then
+			local which = VX.capturing
+			VX.capturing = nil
+			VX.G.binds[which] = input.KeyCode.Name
+			VX.requestSave()
+			VX.notify("Shortcut set to " .. input.KeyCode.Name .. ".", "success")
+			if VX.currentPage == "Universal" and VX.currentTab == "Utilities" then
+				VX.renderPage()
 			end
 		end
 		return
 	end
 	if input.KeyCode == Enum.KeyCode.Escape then
-		if suppressEscape or paletteOpen then
+		if VX.suppressEscape or VX.paletteOpen then
 			return
 		end
-		local focused = UserInputService:GetFocusedTextBox()
+		local focused = VX.UserInputService:GetFocusedTextBox()
 		if focused then
 			focused:ReleaseFocus()
 			return
 		end
-		if modalOpen then
-			closeModal()
+		if VX.modalOpen then
+			VX.closeModal()
 			return
 		end
-		if dropdownPanel.Visible then
-			closeDropdown()
+		if VX.dropdownPanel.Visible then
+			VX.closeDropdown()
 			return
 		end
-		if windowOpen then
-			toggleWindow()
+		if VX.windowOpen then
+			VX.toggleWindow()
 		end
 		return
 	end
-	local toggleKey = validKey(G.binds.toggle) and Enum.KeyCode[G.binds.toggle] or Enum.KeyCode.RightShift
+	local toggleKey = VX.validKey(VX.G.binds.toggle) and Enum.KeyCode[VX.G.binds.toggle] or Enum.KeyCode.RightShift
 	if input.KeyCode == toggleKey then
-		toggleWindow()
+		VX.toggleWindow()
 		return
 	end
 	if processed then
 		return
 	end
-	local paletteKey = validKey(G.binds.palette) and Enum.KeyCode[G.binds.palette] or Enum.KeyCode.K
-	if input.KeyCode == paletteKey and (UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or UserInputService:IsKeyDown(Enum.KeyCode.RightControl)) then
-		if paletteOpen then
-			closePalette()
+	local paletteKey = VX.validKey(VX.G.binds.palette) and Enum.KeyCode[VX.G.binds.palette] or Enum.KeyCode.K
+	if input.KeyCode == paletteKey and (VX.UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or VX.UserInputService:IsKeyDown(Enum.KeyCode.RightControl)) then
+		if VX.paletteOpen then
+			VX.closePalette()
 		else
-			openPalette()
+			VX.openPalette()
 		end
 	end
 end))
 
-track(UserInputService.LastInputTypeChanged:Connect(function(inputType)
-	lastInput = inputType
-	setWatch("input", "Input    " .. inputType.Name)
+VX.track(VX.UserInputService.LastInputTypeChanged:Connect(function(inputType)
+	VX.lastInput = inputType
+	VX.setWatch("input", "Input    " .. inputType.Name)
 end))
 
-local function bindViewport()
+ function VX.bindViewport()
 	local camera = workspace.CurrentCamera
 	if not camera then
 		return
 	end
-	track(camera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
-		applyChrome()
-		setWatch("res", "Resolution    " .. resolutionText())
+	VX.track(camera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
+		VX.applyChrome()
+		VX.setWatch("res", "Resolution    " .. VX.resolutionText())
 	end))
 end
-bindViewport()
-track(workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
-	bindViewport()
-	if type(P.fov) == "number" then
+VX.bindViewport()
+VX.track(workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
+	VX.bindViewport()
+	if type(VX.P.fov) == "number" then
 		task.defer(function()
-			applyFov(false)
+			VX.applyFov(false)
 		end)
 	end
-	setWatch("fov", "Field of view    " .. fovText())
+	VX.setWatch("fov", "Field of view    " .. VX.fovText())
 end))
-track(player.CharacterAdded:Connect(function()
+VX.track(VX.player.CharacterAdded:Connect(function()
 	task.defer(function()
-		bindViewport()
-		if type(P.fov) == "number" then
-			applyFov(false)
+		VX.bindViewport()
+		if type(VX.P.fov) == "number" then
+			VX.applyFov(false)
 		end
 	end)
 end))
 
-track(RunService.Heartbeat:Connect(function(dt)
-	if not alive then
+VX.track(VX.RunService.Heartbeat:Connect(function(dt)
+	if not VX.alive then
 		return
 	end
-	fpsFrames += 1
-	fpsAccum += dt
-	if fpsAccum < 0.5 then
+	VX.fpsFrames += 1
+	VX.fpsAccum += dt
+	if VX.fpsAccum < 0.5 then
 		return
 	end
-	fpsValue = fpsFrames / fpsAccum
-	fpsFrames = 0
-	fpsAccum = 0
-	fpsCursor = fpsCursor % 28 + 1
-	fpsHistory[fpsCursor] = fpsValue
-	local text = string.format("FPS    %d", math.floor(fpsValue + 0.5))
-	setWatch("fps", text)
-	if chartBars then
+	VX.fpsValue = VX.fpsFrames / VX.fpsAccum
+	VX.fpsFrames = 0
+	VX.fpsAccum = 0
+	VX.fpsCursor = VX.fpsCursor % 28 + 1
+	VX.fpsHistory[VX.fpsCursor] = VX.fpsValue
+	local text = string.format("FPS    %d", math.floor(VX.fpsValue + 0.5))
+	VX.setWatch("fps", text)
+	if VX.chartBars then
 		for index = 1, 28 do
-			local sampleIndex = (fpsCursor - (28 - index) - 1) % 28 + 1
-			local sample = fpsHistory[sampleIndex] or 0
-			local bar = chartBars[index]
+			local sampleIndex = (VX.fpsCursor - (28 - index) - 1) % 28 + 1
+			local sample = VX.fpsHistory[sampleIndex] or 0
+			local bar = VX.chartBars[index]
 			if bar and bar.Parent then
 				bar.Size = UDim2.new(1, 0, math.clamp(sample / 120, 0.06, 1), 0)
 			end
@@ -4187,39 +4188,39 @@ track(RunService.Heartbeat:Connect(function(dt)
 end))
 
 task.spawn(function()
-	while alive do
+	while VX.alive do
 		task.wait(1)
-		if not alive then
+		if not VX.alive then
 			break
 		end
-		setWatch("players", string.format("Players    %d / %d", #Players:GetPlayers(), Players.MaxPlayers))
-		setWatch("ping", pingText())
-		setWatch("session", "Session    " .. formatTime(os.clock() - sessionStart))
-		setWatch("profileLine", (function()
-			local selected = gameById(selectedId)
-			return (selected and selected.name or "No profile") .. "    ·    Session " .. formatTime(os.clock() - sessionStart)
+		VX.setWatch("players", string.format("Players    %d / %d", #VX.Players:GetPlayers(), VX.Players.MaxPlayers))
+		VX.setWatch("ping", VX.pingText())
+		VX.setWatch("session", "Session    " .. VX.formatTime(os.clock() - VX.sessionStart))
+		VX.setWatch("profileLine", (function()
+			local selected = VX.gameById(VX.selectedId)
+			return (selected and selected.name or "No profile") .. "    ·    Session " .. VX.formatTime(os.clock() - VX.sessionStart)
 		end)())
-		setWatch("mem", memoryText())
-		setWatch("fov", "Field of view    " .. fovText())
-		setWatch("res", "Resolution    " .. resolutionText())
-		setWatch("graphics", "Graphics    " .. graphicsText())
+		VX.setWatch("mem", VX.memoryText())
+		VX.setWatch("fov", "Field of view    " .. VX.fovText())
+		VX.setWatch("res", "Resolution    " .. VX.resolutionText())
+		VX.setWatch("graphics", "Graphics    " .. VX.graphicsText())
 		local job = game.JobId == "" and "Job ID    Empty in this session" or ("Job ID    " .. string.sub(game.JobId, 1, 16))
-		setWatch("job", job)
+		VX.setWatch("job", job)
 	end
 end)
 
-local pulseColors = { C.cyan, C.violet, C.green, C.red }
+ VX.pulseColors = { VX.C.cyan, VX.C.violet, VX.C.green, VX.C.red }
 for index = 1, 4 do
 	local horizontal = index % 2 == 0
-	local pulse = make("Frame", {
+	local pulse = VX.make("Frame", {
 		Position = horizontal and UDim2.fromOffset(-120, 70 + index * 36) or UDim2.fromOffset(80 + index * 40, -120),
 		Size = horizontal and UDim2.fromOffset(110, 2) or UDim2.fromOffset(2, 110),
-		BackgroundColor3 = pulseColors[index],
+		BackgroundColor3 = VX.pulseColors[index],
 		BackgroundTransparency = 0.25,
 		BorderSizePixel = 0,
 		Visible = false,
-	}, pulseLayer)
-	local gradient = make("UIGradient", {
+	}, VX.pulseLayer)
+	local gradient = VX.make("UIGradient", {
 		Transparency = NumberSequence.new({
 			NumberSequenceKeypoint.new(0, 1),
 			NumberSequenceKeypoint.new(0.5, 0),
@@ -4231,13 +4232,13 @@ for index = 1, 4 do
 	end
 	task.spawn(function()
 		task.wait(index * 0.35)
-		while alive and pulse.Parent do
-			local moving = bootDone and windowOpen and P.pulses and not P.reducedMotion and grid.Visible
+		while VX.alive and pulse.Parent do
+			local moving = VX.bootDone and VX.windowOpen and VX.P.pulses and not VX.P.reducedMotion and VX.grid.Visible
 			if moving then
 				pulse.Visible = true
 				pulse.Position = horizontal and UDim2.fromOffset(-120, 70 + index * 36) or UDim2.fromOffset(80 + index * 40, -120)
-				local goal = horizontal and UDim2.fromOffset(WIN_W + 40, 70 + index * 36) or UDim2.fromOffset(80 + index * 40, WIN_H + 40)
-				local travel = tween(pulse, (3.1 + index * 0.35) / math.clamp(P.anim or 1, 0.6, 1.4), { Position = goal })
+				local goal = horizontal and UDim2.fromOffset(VX.WIN_W + 40, 70 + index * 36) or UDim2.fromOffset(80 + index * 40, VX.WIN_H + 40)
+				local travel = VX.tween(pulse, (3.1 + index * 0.35) / math.clamp(VX.P.anim or 1, 0.6, 1.4), { Position = goal })
 				pcall(function()
 					travel.Completed:Wait()
 				end)
@@ -4250,79 +4251,79 @@ for index = 1, 4 do
 	end)
 end
 
-if UserInputService.TouchEnabled and not UserInputService.MouseEnabled then
-	dockExpanded = true
-	dock.Size = UDim2.fromOffset(DOCK_OPEN, 52)
+if VX.UserInputService.TouchEnabled and not VX.UserInputService.MouseEnabled then
+	VX.dockExpanded = true
+	VX.dock.Size = UDim2.fromOffset(VX.DOCK_OPEN, 52)
 end
 
-dock.MouseEnter:Connect(function()
-	if UserInputService.MouseEnabled then
-		if not dockExpanded then
-			dockExpanded = true
-			tween(dock, 0.28, { Size = UDim2.fromOffset(DOCK_OPEN, 52) })
+VX.dock.MouseEnter:Connect(function()
+	if VX.UserInputService.MouseEnabled then
+		if not VX.dockExpanded then
+			VX.dockExpanded = true
+			VX.tween(VX.dock, 0.28, { Size = UDim2.fromOffset(VX.DOCK_OPEN, 52) })
 		end
 	end
 end)
-dock.MouseLeave:Connect(function()
-	if UserInputService.MouseEnabled and not (UserInputService.TouchEnabled and not UserInputService.MouseEnabled) then
-		if dockExpanded then
-			dockExpanded = false
-			tween(dock, 0.28, { Size = UDim2.fromOffset(DOCK_CLOSED, 52) })
+VX.dock.MouseLeave:Connect(function()
+	if VX.UserInputService.MouseEnabled and not (VX.UserInputService.TouchEnabled and not VX.UserInputService.MouseEnabled) then
+		if VX.dockExpanded then
+			VX.dockExpanded = false
+			VX.tween(VX.dock, 0.28, { Size = UDim2.fromOffset(VX.DOCK_CLOSED, 52) })
 		end
 	end
 end)
-dockLogo.Activated:Connect(function()
-	if UserInputService.TouchEnabled and not UserInputService.MouseEnabled then
-		dockExpanded = not dockExpanded
-		tween(dock, 0.28, { Size = UDim2.fromOffset(dockExpanded and DOCK_OPEN or DOCK_CLOSED, 52) })
-		if dockExpanded then
-			ensureWindow()
+VX.dockLogo.Activated:Connect(function()
+	if VX.UserInputService.TouchEnabled and not VX.UserInputService.MouseEnabled then
+		VX.dockExpanded = not VX.dockExpanded
+		VX.tween(VX.dock, 0.28, { Size = UDim2.fromOffset(VX.dockExpanded and VX.DOCK_OPEN or VX.DOCK_CLOSED, 52) })
+		if VX.dockExpanded then
+			VX.ensureWindow()
 		end
 	else
-		toggleWindow()
+		VX.toggleWindow()
 	end
 end)
 
-modalDim.Activated:Connect(function()
-	closeModal()
+VX.modalDim.Activated:Connect(function()
+	VX.closeModal()
 end)
 
-gui.Destroying:Connect(function()
-	alive = false
+VX.gui.Destroying:Connect(function()
+	VX.alive = false
 	pcall(function()
-		ContextActionService:UnbindAction("VEXORA_Palette")
+		VX.ContextActionService:UnbindAction("VEXORA_Palette")
 	end)
-	for _, conn in ipairs(conns) do
+	for _, conn in ipairs(VX.conns) do
 		pcall(function()
 			conn:Disconnect()
 		end)
 	end
-	clearPageConns()
-	if previousQuality ~= nil then
+	VX.clearPageConns()
+	if VX.previousQuality ~= nil then
 		pcall(function()
-			UserSettings():GetService("UserGameSettings").SavedQualityLevel = previousQuality
+			UserSettings():GetService("UserGameSettings").SavedQualityLevel = VX.previousQuality
 		end)
 	end
 end)
 
-registerFeatures()
-applyChrome()
-applyCrosshair()
+VX.registerFeatures()
+VX.applyChrome()
+VX.applyCrosshair()
 
 task.spawn(function()
 	local ok, info = pcall(function()
-		return MarketplaceService:GetProductInfo(game.PlaceId)
+		return VX.MarketplaceService:GetProductInfo(game.PlaceId)
 	end)
 	if ok and type(info) == "table" and type(info.Name) == "string" then
-		experienceName = info.Name
-		setWatch("experience", "Experience    " .. experienceName)
+		VX.experienceName = info.Name
+		VX.setWatch("experience", "Experience    " .. VX.experienceName)
 	end
-	infoReady = true
+	VX.infoReady = true
 end)
 
 task.spawn(function()
 	local assets = {}
-	for _, entry in ipairs(GAMES) do
+	for _, entry in ipairs(VX.GAMES) do
 		if entry.universeId then
 			table.insert(assets, "rbxthumb://type=GameThumbnail&id=" .. tostring(entry.universeId) .. "&w=768&h=432")
 			table.insert(assets, "rbxthumb://type=GameIcon&id=" .. tostring(entry.universeId) .. "&w=150&h=150")
@@ -4330,92 +4331,92 @@ task.spawn(function()
 	end
 	if #assets > 0 then
 		pcall(function()
-			ContentProvider:PreloadAsync(assets)
+			VX.ContentProvider:PreloadAsync(assets)
 		end)
 	end
 end)
 
-local splash = make("CanvasGroup", {
+ VX.splash = VX.make("CanvasGroup", {
 	AnchorPoint = Vector2.new(0.5, 0.5),
 	Position = UDim2.fromScale(0.5, 0.5),
 	Size = UDim2.fromOffset(360, 210),
-	BackgroundColor3 = C.bg,
+	BackgroundColor3 = VX.C.bg,
 	GroupTransparency = 1,
 	ZIndex = 8,
-}, gui)
-corner(splash, 16)
-stroke(splash, 0.15)
-local splashScale = make("UIScale", { Scale = 1 }, splash)
-local splashGrid = make("Frame", { BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), ClipsDescendants = true }, splash)
+}, VX.gui)
+VX.corner(VX.splash, 16)
+VX.stroke(VX.splash, 0.15)
+ VX.splashScale = VX.make("UIScale", { Scale = 1 }, VX.splash)
+ VX.splashGrid = VX.make("Frame", { BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), ClipsDescendants = true }, VX.splash)
 for x = 0, 360, 26 do
-	make("Frame", {
+	VX.make("Frame", {
 		Position = UDim2.fromOffset(x, 0),
 		Size = UDim2.new(0, 1, 1, 0),
-		BackgroundColor3 = C.white,
+		BackgroundColor3 = VX.C.white,
 		BackgroundTransparency = 0.96,
 		BorderSizePixel = 0,
-	}, splashGrid)
+	}, VX.splashGrid)
 end
 for y = 0, 210, 26 do
-	make("Frame", {
+	VX.make("Frame", {
 		Position = UDim2.fromOffset(0, y),
 		Size = UDim2.new(1, 0, 0, 1),
-		BackgroundColor3 = C.white,
+		BackgroundColor3 = VX.C.white,
 		BackgroundTransparency = 0.96,
 		BorderSizePixel = 0,
-	}, splashGrid)
+	}, VX.splashGrid)
 end
-local splashLogo = make("TextLabel", {
+ VX.splashLogo = VX.make("TextLabel", {
 	AnchorPoint = Vector2.new(0.5, 0),
 	Position = UDim2.new(0.5, 0, 0, 28),
 	Size = UDim2.fromOffset(48, 48),
-	BackgroundColor3 = C.white,
+	BackgroundColor3 = VX.C.white,
 	Text = "V",
-	TextColor3 = C.bg,
+	TextColor3 = VX.C.bg,
 	Font = Enum.Font.GothamBold,
 	TextSize = 26,
 	BorderSizePixel = 0,
-}, splash)
-corner(splashLogo, 12)
-local splashTitle = make("TextLabel", {
+}, VX.splash)
+VX.corner(VX.splashLogo, 12)
+ VX.splashTitle = VX.make("TextLabel", {
 	BackgroundTransparency = 1,
 	Position = UDim2.fromOffset(0, 86),
 	Size = UDim2.new(1, 0, 0, 28),
 	Font = Enum.Font.GothamBold,
 	TextSize = 26,
-	TextColor3 = C.white,
+	TextColor3 = VX.C.white,
 	Text = "VEXORA",
-}, splash)
-local splashSub = make("TextLabel", {
+}, VX.splash)
+ VX.splashSub = VX.make("TextLabel", {
 	BackgroundTransparency = 1,
 	Position = UDim2.fromOffset(0, 116),
 	Size = UDim2.new(1, 0, 0, 16),
 	Font = Enum.Font.Gotham,
 	TextSize = 12,
-	TextColor3 = C.muted,
+	TextColor3 = VX.C.muted,
 	Text = "Opening",
-}, splash)
-local splashTrack = make("Frame", {
+}, VX.splash)
+ VX.splashTrack = VX.make("Frame", {
 	AnchorPoint = Vector2.new(0.5, 0),
 	Position = UDim2.new(0.5, 0, 0, 156),
 	Size = UDim2.fromOffset(220, 3),
-	BackgroundColor3 = C.hover,
+	BackgroundColor3 = VX.C.hover,
 	BorderSizePixel = 0,
-}, splash)
-corner(splashTrack, 3)
-local splashFill = make("Frame", {
+}, VX.splash)
+VX.corner(VX.splashTrack, 3)
+ VX.splashFill = VX.make("Frame", {
 	Size = UDim2.fromScale(0, 1),
-	BackgroundColor3 = C.white,
+	BackgroundColor3 = VX.C.white,
 	BorderSizePixel = 0,
-}, splashTrack)
-corner(splashFill, 3)
+}, VX.splashTrack)
+VX.corner(VX.splashFill, 3)
 
-local function boot()
+ function VX.boot()
 	local camera = workspace.CurrentCamera
 	if camera then
-		splashScale.Scale = math.clamp(math.min(1, (camera.ViewportSize.X - 24) / 360), 0.7, 1)
+		VX.splashScale.Scale = math.clamp(math.min(1, (camera.ViewportSize.X - 24) / 360), 0.7, 1)
 	end
-	tween(splash, 0.35, { GroupTransparency = 0 })
+	VX.tween(VX.splash, 0.35, { GroupTransparency = 0 })
 	local steps = {
 		{ 0.22, "Opening VEXORA" },
 		{ 0.48, "Identifying this experience" },
@@ -4423,45 +4424,45 @@ local function boot()
 		{ 1, "Choose a profile" },
 	}
 	for _, step in ipairs(steps) do
-		if not alive then
+		if not VX.alive then
 			return
 		end
-		splashSub.Text = step[2]
-		local fillTween = tween(splashFill, 0.28, { Size = UDim2.fromScale(step[1], 1) })
+		VX.splashSub.Text = step[2]
+		local fillTween = VX.tween(VX.splashFill, 0.28, { Size = UDim2.fromScale(step[1], 1) })
 		pcall(function()
 			fillTween.Completed:Wait()
 		end)
 		task.wait(0.08)
 	end
 	local deadline = os.clock() + 1.2
-	while alive and not infoReady and os.clock() < deadline do
+	while VX.alive and not VX.infoReady and os.clock() < deadline do
 		task.wait(0.05)
 	end
-	if not alive then
+	if not VX.alive then
 		return
 	end
-	splashSub.Text = "You are in " .. experienceName
+	VX.splashSub.Text = "You are in " .. VX.experienceName
 	task.wait(0.18)
-	local fade = tween(splash, 0.22, { GroupTransparency = 1 })
+	local fade = VX.tween(VX.splash, 0.22, { GroupTransparency = 1 })
 	pcall(function()
 		fade.Completed:Wait()
 	end)
-	if splash.Parent then
-		splash:Destroy()
+	if VX.splash.Parent then
+		VX.splash:Destroy()
 	end
-	bootDone = true
-	applyAll()
-	dock.Visible = G.dock
-	navigate("Games", nil, true)
-	if G._loadNote then
-		notify(G._loadNote, "warning")
-		G._loadNote = nil
-	elseif storageMode == "file" then
-		notify("Settings loaded from this device.", "info")
+	VX.bootDone = true
+	VX.applyAll()
+	VX.dock.Visible = VX.G.dock
+	VX.navigate("Games", nil, true)
+	if VX.G._loadNote then
+		VX.notify(VX.G._loadNote, "warning")
+		VX.G._loadNote = nil
+	elseif VX.storageMode == "file" then
+		VX.notify("Settings loaded from this device.", "info")
 	else
-		notify("Settings last for this run. Export a copy to keep them.", "info")
+		VX.notify("Settings last for this run. Export a copy to keep them.", "info")
 	end
 	print("[VEXORA] 5.0 loaded")
 end
 
-task.spawn(boot)
+task.spawn(VX.boot)

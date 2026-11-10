@@ -1,7 +1,7 @@
 -- Paste this into your executor. It downloads VEXORA and runs it.
 local urls = {
-	"https://raw.githubusercontent.com/Criminaltheclown/vexora/main/VEXORA_5.0.lua",
-	"https://cdn.jsdelivr.net/gh/Criminaltheclown/vexora@main/VEXORA_5.0.lua",
+	"https://raw.githubusercontent.com/Criminaltheclown/vexora/main/VEXORA_5.0.lua?v=2",
+	"https://cdn.jsdelivr.net/gh/Criminaltheclown/vexora@main/VEXORA_5.0.lua?v=2",
 }
 
 local function bodyOf(result)
